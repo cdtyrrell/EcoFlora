@@ -31,6 +31,7 @@ class ChecklistAdmin extends Manager{
 		$newClid = 0;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
 			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
+			$postArr['dynamicProperties'] = $this->getDynamicPropertiesJsonWithExternalServiceDetails($postArr);
 
 			$inventoryManager = new ImInventories();
 			$newClid = $inventoryManager->insertChecklist($postArr);
@@ -56,6 +57,7 @@ class ChecklistAdmin extends Manager{
 		$status = false;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
 			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
+			$postArr['dynamicProperties'] = $this->getDynamicPropertiesJsonWithExternalServiceDetails($postArr);
 
 			$inventoryManager = new ImInventories();
 			$inventoryManager->setClid($this->clid);
@@ -85,6 +87,13 @@ class ChecklistAdmin extends Manager{
 		$defaultArr['dalpha'] = array_key_exists('dalpha',$postArr)?1:0;
 		$defaultArr['activatekey'] = array_key_exists('activatekey',$postArr)?1:0;
 		return json_encode($defaultArr);
+	}
+
+	private function getDynamicPropertiesJsonWithExternalServiceDetails($postArr){
+		$dynpropArr = json_decode($postArr['dynamicProperties']);
+		$dynpropArr['externalservice'] = array_key_exists('externalservice',$postArr)?$postArr['externalservice']:'';
+		$dynpropArr['externalserviceid'] = array_key_exists('externalserviceid',$postArr)?$postArr['externalserviceid']:'';
+		return json_encode($dynpropArr);
 	}
 
 	//Polygon functions

@@ -19,6 +19,10 @@ $defaultArr = array();
 if(isset($clArray['defaultsettings']) && $clArray['defaultsettings']){
 	$defaultArr = json_decode($clArray['defaultsettings'], true);
 }
+$dynamPropsArr = array();
+if(isset($clArray['dynamicProperties']) && $clArray['dynamicProperties']){
+	$dynamPropsArr = json_decode($clArray['dynamicProperties'], true);
+}
 ?>
 <script type="text/javascript" src="../js/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
@@ -183,10 +187,10 @@ if(!$clid){
 				<select name="externalservice">
 					<option value=""></option>
 					<option value="">-------------------------------</option>
-					<option value="inaturalistapiurlhere">iNaturalist</option>
+					<option value="iNaturalist" <?php echo (($dynamPropsArr['externalservice']=='iNaturalist')?'selected':''); ?>>iNaturalist</option>
 				</select><br/>
 				<b><?php echo (isset($LANG['EXTSERVICEID'])?$LANG['EXTSERVICEID']:'Project ID for External Service');?></b><br/>
-				<input type="text" name="externalserviceid" style="width:25%" value="<?php echo ($clArray?$clArray["externalserviceid"]:''); ?>" />
+				<input type="text" name="externalserviceid" style="width:25%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
 			</div>
 			<div id="locDiv">
 				<b><?php echo (isset($LANG['LOC'])?$LANG['LOC']:'Locality');?></b><br/>
