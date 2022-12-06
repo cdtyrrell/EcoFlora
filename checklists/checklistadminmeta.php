@@ -187,7 +187,7 @@ if(!$clid){
 				<select name="externalservice">
 					<option value=""></option>
 					<option value="">-------------------------------</option>
-					<option value="iNaturalist" <?php echo (($dynamPropsArr['externalservice']=='iNaturalist')?'selected':''); ?>>iNaturalist</option>
+					<option value="inaturalist" <?php echo (($dynamPropsArr['externalservice']=='inaturalist')?'selected':''); ?>>iNaturalist</option>
 				</select><br/>
 				<b><?php echo (isset($LANG['EXTSERVICEID'])?$LANG['EXTSERVICEID']:'Project ID for External Service');?></b><br/>
 				<input type="text" name="externalserviceid" style="width:25%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
