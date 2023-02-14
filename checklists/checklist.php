@@ -684,6 +684,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					else{
 						//Display taxa
 						echo '<div id="taxalist-div">';
+						if($clid && $clArray['dynamicProperties']){
+							$dynamPropsArr = json_decode($clArray['dynamicProperties'], true);
+						}
 						$voucherArr = array();
 						if($showVouchers) $voucherArr = $clManager->getVoucherArr();
 						$prevGroup = '';
@@ -722,9 +725,11 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
 										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
 									</a>
-									<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
-										<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
-									</a>
+									<?php if(isset($dynamPropsArr)){ ?>
+										<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
+											<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
+										</a>
+									<?php } ?>
 								</span>
 								<?php
 							}
@@ -776,8 +781,12 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							echo "</div>\n";
 						}
 						echo '</div>';
-						echo '<script>const checklisttaxa = [' . $arrforexternalserviceapi . '];</script>';
-						echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
+						if(isset($dynamPropsArr)) {
+							echo '<script>const externalProjID = "' . ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') . '";';
+							echo 'const iconictaxon = "' . ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') . '";';
+							echo 'const checklisttaxa = [' . $arrforexternalserviceapi . '];</script>';
+							echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
+						}
 					}
 					$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 					if($clManager->getTaxaCount() > (($pageNumber)*$taxaLimit)){

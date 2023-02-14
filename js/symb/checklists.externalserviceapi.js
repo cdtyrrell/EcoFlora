@@ -33,7 +33,12 @@ function extractiNatTaxaIdAndName(resultsjson) {
 }
 
 async function fetchiNatPage1(projID, iconictaxon = '', qualitygrade = 'research') {
-    const apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+    let apiurl = '';
+    if(iconictaxon == '') {
+        apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&per_page=500&fields=(taxon:(name:!t))`;
+    } else {
+        apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+    }
     const resp = await fetch(apiurl);
     try {
         if(resp.ok) {
@@ -47,7 +52,12 @@ async function fetchiNatPage1(projID, iconictaxon = '', qualitygrade = 'research
 
 async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', qualitygrade = 'research') {
     try {
-        const apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+        let apiurl = '';
+        if(iconictaxon == '') {
+            apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&per_page=500&fields=(taxon:(name:!t))`;
+        } else {
+            apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+        }
         let allapiurls = [];
         if(loopnum > 1) {
             for(let i = 2; i <= loopnum; i++) {
@@ -70,17 +80,17 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
 
 // TO DO:
 // extract these vars from fmchecklist table
-const projID = 'jamaican-plants'; //'10230';
-const iconictaxon = 'Plantae';
+//const projID = 'jamaican-plants'; //'10230';
+//const iconictaxon = 'Plantae'; 
 let taxalist = '';
 
-fetchiNatPage1(projID, iconictaxon)
+fetchiNatPage1(externalProjID, iconictaxon)
     .then(pageone => {
         const totalresults = pageone.total_results;
         const perpage = pageone.per_page;
         const loopnum = Math.ceil(totalresults / perpage);
         const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
-        fetchiNatAdditionalPages(loopnum, projID, iconictaxon)
+        fetchiNatAdditionalPages(loopnum, externalProjID, iconictaxon)
         .then(pagestwoplus => {
             const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
             taxalist = taxalist1.concat(taxalist2.flat());
@@ -91,7 +101,7 @@ fetchiNatPage1(projID, iconictaxon)
                 const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
                 if(idx >= 0) {
                     imgtag.setAttribute("style", "width:12px;display:inline;");
-                    anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${projID}&taxon_id=${taxalist[idx].id}`);
+                    anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
                 }
             })
         })
