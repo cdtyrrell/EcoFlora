@@ -94,6 +94,7 @@ class ChecklistAdmin extends Manager{
 		$dynpropArr['externalservice'] = array_key_exists('externalservice',$postArr)?$postArr['externalservice']:'';
 		$dynpropArr['externalserviceid'] = array_key_exists('externalserviceid',$postArr)?$postArr['externalserviceid']:'';
 		if($dynpropArr['externalservice'] == 'inaturalist') {
+			$dynpropArr['externalserviceiconictaxon'] = array_key_exists('externalserviceiconictaxon',$postArr)?$postArr['externalserviceiconictaxon']:'';
 			$requestStr = 'https://api.inaturalist.org/v1/projects/' . $dynpropArr['externalserviceid'];
 			$inatProjectJson = json_decode(file_get_contents($requestStr));
 			$inatProjectJson = $inatProjectJson->results[0];

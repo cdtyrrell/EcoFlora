@@ -183,16 +183,23 @@ if(!$clid){
 				?>
 			</div>
 			<div>
-				<b><?php echo (isset($LANG['EXTSERVICE'])?$LANG['EXTSERVICE']:'External Service (e.g., iNaturalist) to associate with this checklist');?></b><br/>
+				<b><?php echo (isset($LANG['EXTSERVICE'])?$LANG['EXTSERVICE']:'External Service (e.g., iNaturalist) to associate with this checklist [optional]');?></b><br/>
 				<select name="externalservice">
 					<option value=""></option>
 					<option value="">-------------------------------</option>
 					<option value="inaturalist" <?php echo (($dynamPropsArr['externalservice']=='inaturalist')?'selected':''); ?>>iNaturalist</option>
-				</select><br/>
-				<b><?php echo (isset($LANG['EXTSERVICEID'])?$LANG['EXTSERVICEID']:'Project ID for External Service');?></b><br/>
-				<input type="text" name="externalserviceid" style="width:25%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
+				</select>
 			</div>
-			<div id="locDiv">
+			<div style="width:100%;margin-top:5px">
+				<div style="float:left;width:25%">
+				<b><?php echo (isset($LANG['EXTSERVICEID'])?$LANG['EXTSERVICEID']:'Project ID from External Service');?></b><br/>
+				<input type="text" name="externalserviceid" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
+				</div><div style="float:left;margin-left:15px;">
+				<b><?php echo (isset($LANG['EXTSERVICETAXON'])?$LANG['EXTSERVICETAXON']:'External Service Taxon Filter [optional]');?></b><br/>
+				<input type="text" name="externalserviceiconictaxon" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceiconictaxon']:''); ?>" />
+				</div>
+			</div>
+			<div id="locDiv" style="clear:both;margin-top:5px;">
 				<b><?php echo (isset($LANG['LOC'])?$LANG['LOC']:'Locality');?></b><br/>
 				<input type="text" name="locality" style="width:95%" value="<?php echo ($clArray?$clArray["locality"]:''); ?>" />
 			</div>
