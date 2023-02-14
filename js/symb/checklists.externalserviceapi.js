@@ -22,14 +22,7 @@
 |  Returns:  
 *-------------------------------------------------------------------*/
 
-const projID = '10230';
-const iconictaxon = 'Plantae';
-const qualitygrade = 'research';
-const apiurl = 'https://api.inaturalist.org/v2/observations/species_counts?project_id=' + projID + '&quality_grade=' + qualitygrade + '&iconic_taxa=' + iconictaxon + '&per_page=500&fields=(taxon:(name:!t))';
 
-let taxalist = '';
-let totalresults = 0;
-let perpage = 0;
 
 function extractiNatTaxaIdAndName(resultsjson) {
     let outputArr = Array();
@@ -39,42 +32,70 @@ function extractiNatTaxaIdAndName(resultsjson) {
     return outputArr;
 }
 
-fetch(apiurl)
-  .then(response => {
-    if(response.ok){
-	  return response.json();  
+async function fetchiNatPage1(projID, iconictaxon = '', qualitygrade = 'research') {
+    const apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+    const resp = await fetch(apiurl);
+    try {
+        if(resp.ok) {
+            const page1 = await resp.json();
+            return page1;
+        }
+    } catch(err) {
+        console.error(err);
     }
-	throw new Error('Request failed!');
-  }, 
-    networkError => {
-    console.log(networkError.message);
-  })
-  .then(jsonResponse => {
-    taxalist = extractiNatTaxaIdAndName(jsonResponse.results);
-    totalresults = jsonResponse.total_results;
-    perpage = jsonResponse.per_page;
+}
 
-    let loopnum = Math.ceil(totalresults / perpage);
-
-    for (let i = 2; i <= loopnum; i++) {
-        fetch(apiurl + '&page=' + i)
-          .then(response => {
-            if(response.ok){
-              return response.json();  
+async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', qualitygrade = 'research') {
+    try {
+        const apiurl = `https://api.inaturalist.org/v2/observations/species_counts?project_id=${projID}&quality_grade=${qualitygrade}&iconic_taxa=${iconictaxon}&per_page=500&fields=(taxon:(name:!t))`;
+        let allapiurls = [];
+        if(loopnum > 1) {
+            for(let i = 2; i <= loopnum; i++) {
+                allapiurls.push(apiurl + `&page=${i}`);
             }
-            throw new Error('Request failed!');
-          }, 
-            networkError => {
-            console.log(networkError.message);
-          })
-          .then(jsonResponse2 => {
-            taxalist = taxalist.concat(extractiNatTaxaIdAndName(jsonResponse2.results));
-          })
-      }
+        }
+        const resps = await Promise.all(allapiurls.map(async (url) => {
+            const resp = await fetch(url);
+            // iNaturalist API requests throttling to < 100 requests per minute
+            await new Promise(governer => setTimeout(governer, 600));
+            return resp;
+        }));
+        const resppromises = resps.map(result => result.json());
+        const additionalPages = await Promise.all(resppromises);
+        //console.log(additionalPages);
+        return additionalPages;
+    } catch(err) {
+        console.error(err);
+    }
+}
 
-      chacklisttaxa.forEach( taxon => {taxalist.indexof(taxon)} );
-      // add id to url for hidden icon with document.getElementById(id).innerHTML = new HTML; icon display not hidden css
-      // var link = document.getElementById("abc");
-      //  link.setAttribute("href", "xyz.php");
+const projID = 'jamaican-plants'; //'10230';
+const iconictaxon = 'Plantae';
+let taxalist = '';
 
-  })
+fetchiNatPage1(projID, iconictaxon)
+    .then(taxaIdAndName => {
+        const totalresults = taxaIdAndName.total_results;
+        const perpage = taxaIdAndName.per_page;
+        const loopnum = Math.ceil(totalresults / perpage);
+        const taxalist1 = extractiNatTaxaIdAndName(taxaIdAndName.results);
+        fetchiNatAdditionalPages(loopnum, projID, iconictaxon)
+        .then(extrapgs => {
+            const taxalist2 = extrapgs.map(dat => extractiNatTaxaIdAndName(dat.results))
+            taxalist = taxalist1.concat(taxalist2.flat());
+            //console.log(taxalist);
+            checklisttaxa.forEach( taxon => { 
+                let anchortag = document.getElementById('a-'+taxon);
+                let imgtag = document.getElementById('i-'+taxon);
+                let taxonwithspaces = taxon.replaceAll('-', ' ');
+                const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
+                if(idx >= 0) {
+                    imgtag.setAttribute("style", "width:12px;display:inline;");
+                    anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${projID}&taxon_id=${taxalist[idx].id}`);
+                }
+            })
+        })
+        .catch(error => {
+            error.message;
+        })
+    })

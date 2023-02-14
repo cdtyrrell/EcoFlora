@@ -687,6 +687,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 						$voucherArr = array();
 						if($showVouchers) $voucherArr = $clManager->getVoucherArr();
 						$prevGroup = '';
+						$arrforexternalserviceapi = '';
 						foreach($taxaArray as $tid => $sppArr){
 							$group = $sppArr['taxongroup'];
 							if($group != $prevGroup){
@@ -710,13 +711,18 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
 							if($clid && $clArray['dynamicsql']){
+								$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
+								if($arrforexternalserviceapi == '') {
+									$arrforexternalserviceapi .= "'" . $scinameasid . "'";
+								} else {
+									$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
+								}
 								?>
 								<span class="view-specimen-span printoff">
 									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
 										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
 									</a>
-									<?php $scinameasid = str_replace(" ", "-", $sppArr['sciname']);	?>
-									<a href="https://www.inaturalist.org/observations" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
+									<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
 										<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
 									</a>
 								</span>
@@ -770,6 +776,8 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							echo "</div>\n";
 						}
 						echo '</div>';
+						echo '<script>const checklisttaxa = [' . $arrforexternalserviceapi . '];</script>';
+						echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
 					}
 					$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 					if($clManager->getTaxaCount() > (($pageNumber)*$taxaLimit)){
