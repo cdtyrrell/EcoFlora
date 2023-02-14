@@ -62,28 +62,28 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
         }));
         const resppromises = resps.map(result => result.json());
         const additionalPages = await Promise.all(resppromises);
-        //console.log(additionalPages);
         return additionalPages;
     } catch(err) {
         console.error(err);
     }
 }
 
+// TO DO:
+// extract these vars from fmchecklist table
 const projID = 'jamaican-plants'; //'10230';
 const iconictaxon = 'Plantae';
 let taxalist = '';
 
 fetchiNatPage1(projID, iconictaxon)
-    .then(taxaIdAndName => {
-        const totalresults = taxaIdAndName.total_results;
-        const perpage = taxaIdAndName.per_page;
+    .then(pageone => {
+        const totalresults = pageone.total_results;
+        const perpage = pageone.per_page;
         const loopnum = Math.ceil(totalresults / perpage);
-        const taxalist1 = extractiNatTaxaIdAndName(taxaIdAndName.results);
+        const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
         fetchiNatAdditionalPages(loopnum, projID, iconictaxon)
-        .then(extrapgs => {
-            const taxalist2 = extrapgs.map(dat => extractiNatTaxaIdAndName(dat.results))
+        .then(pagestwoplus => {
+            const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
             taxalist = taxalist1.concat(taxalist2.flat());
-            //console.log(taxalist);
             checklisttaxa.forEach( taxon => { 
                 let anchortag = document.getElementById('a-'+taxon);
                 let imgtag = document.getElementById('i-'+taxon);
