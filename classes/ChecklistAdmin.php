@@ -31,6 +31,7 @@ class ChecklistAdmin extends Manager{
 		$newClid = 0;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
 			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
+			$postArr['dynamicProperties'] = $this->getDynamicPropertiesJsonWithExternalServiceDetails($postArr);
 
 			$inventoryManager = new ImInventories();
 			$newClid = $inventoryManager->insertChecklist($postArr);
@@ -56,6 +57,7 @@ class ChecklistAdmin extends Manager{
 		$status = false;
 		if($GLOBALS['SYMB_UID'] && isset($postArr['name'])){
 			$postArr['defaultsettings'] = $this->getDefaultJson($postArr);
+			$postArr['dynamicProperties'] = $this->getDynamicPropertiesJsonWithExternalServiceDetails($postArr);
 
 			$inventoryManager = new ImInventories();
 			$inventoryManager->setClid($this->clid);
@@ -85,6 +87,41 @@ class ChecklistAdmin extends Manager{
 		$defaultArr['dalpha'] = array_key_exists('dalpha',$postArr)?1:0;
 		$defaultArr['activatekey'] = array_key_exists('activatekey',$postArr)?1:0;
 		return json_encode($defaultArr);
+	}
+
+	private function getDynamicPropertiesJsonWithExternalServiceDetails($postArr){
+		$dynpropArr = json_decode($postArr['dynamicProperties']);
+		$dynpropArr['externalservice'] = array_key_exists('externalservice',$postArr)?$postArr['externalservice']:'';
+		$dynpropArr['externalserviceid'] = array_key_exists('externalserviceid',$postArr)?$postArr['externalserviceid']:'';
+		if($dynpropArr['externalservice'] == 'inaturalist') {
+			$dynpropArr['externalserviceiconictaxon'] = array_key_exists('externalserviceiconictaxon',$postArr)?$postArr['externalserviceiconictaxon']:'';
+			$requestStr = 'https://api.inaturalist.org/v1/projects/' . $dynpropArr['externalserviceid'];
+			$inatProjectJson = json_decode(file_get_contents($requestStr));
+			$inatProjectJson = $inatProjectJson->results[0];
+			$requestStr = 'https://api.inaturalist.org/v1/places/' . $inatProjectJson->place_id;
+			$inatPlaceJson = json_decode(file_get_contents($requestStr));
+			$inatPlaceCoords = $inatPlaceJson->results[0]->bounding_box_geojson->coordinates[0];
+			$maxlondiff = $maxlatdiff = 0;
+			$bboxloncoords = $bboxlatcoords = array();
+			for ($k = 0 ; $k < 4; $k++) {
+				if(isset($prevzero)) {
+					$londiff = abs($inatPlaceCoords[$k][0] - $prevzero);
+					$latdiff = abs($inatPlaceCoords[$k][1] - $prevone);
+					$maxlondiff = ($londiff > $maxlondiff) ? $londiff : $maxlondiff;
+					$maxlatdiff = ($latdiff > $maxlatdiff) ? $latdiff : $maxlatdiff;
+				}
+				$bboxloncoords[] = $prevzero = $inatPlaceCoords[$k][0];
+				$bboxlatcoords[] = $prevone = $inatPlaceCoords[$k][1];
+			}
+			$zoom = round( log(180/(max([$maxlondiff,$maxlatdiff]) / 4), 2) ) + 1;
+			$xtilemax = floor(((max($bboxloncoords) + 180) / 360) * pow(2, $zoom));
+			$xtilemin = floor(((min($bboxloncoords) + 180) / 360) * pow(2, $zoom));
+			$ytilemax = floor((1 - log(tan(deg2rad(max($bboxlatcoords))) + 1 / cos(deg2rad(max($bboxlatcoords)))) / pi()) /2 * pow(2, $zoom));
+			$ytilemin = floor((1 - log(tan(deg2rad(min($bboxlatcoords))) + 1 / cos(deg2rad(min($bboxlatcoords)))) / pi()) /2 * pow(2, $zoom));
+			$dynpropArr['externalservicexyzmax'] = $zoom.'|'.$xtilemax.'|'.$ytilemax;
+			$dynpropArr['externalservicexyzmin'] = $zoom.'|'.$xtilemin.'|'.$ytilemin;
+		}
+		return json_encode($dynpropArr);
 	}
 
 	//Polygon functions
