@@ -5,22 +5,7 @@
 |  Programming performed by Christopher D. Tyrrell, all errors and
 |   omissions are his.
 *-------------------------------------------------------------------*/
-//
-/*---------------------------------------------------------------------
-|
-|  Purpose:  Retreive the name and iNaturalist taxon ID for
-|	   all taxa associated with an iNaturalist project.
-|
-|  Pre-condition: 
-|
-|  Post-condition: 
-|
-|  Parameters:
-|	 param1 -- def'n.
-|	 param2 -- def'n.
-|
-|  Returns:  
-*-------------------------------------------------------------------*/
+
 
 
 
