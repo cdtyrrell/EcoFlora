@@ -747,11 +747,40 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							echo "</div>\n";
 						}
 						echo '</div>';
-						if(isset($dynamPropsArr)) {
+						if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
 							echo '<script>const externalProjID = "' . ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') . '";';
 							echo 'const iconictaxon = "' . ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') . '";';
 							echo 'const checklisttaxa = [' . $arrforexternalserviceapi . '];</script>';
 							echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
+							?>
+							<script>
+							fetchiNatPage1(externalProjID, iconictaxon)
+								.then(pageone => {
+									const totalresults = pageone.total_results;
+									const perpage = pageone.per_page;
+									const loopnum = Math.ceil(totalresults / perpage);
+									const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
+									fetchiNatAdditionalPages(loopnum, externalProjID, iconictaxon)
+									.then(pagestwoplus => {
+										const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
+										taxalist = taxalist1.concat(taxalist2.flat());
+										checklisttaxa.forEach( taxon => { 
+											let anchortag = document.getElementById('a-'+taxon);
+											let imgtag = document.getElementById('i-'+taxon);
+											let taxonwithspaces = taxon.replaceAll('-', ' ');
+											const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
+											if(idx >= 0) {
+												imgtag.setAttribute("style", "width:12px;display:inline;");
+												anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
+											}
+										})
+									})
+									.catch(error => {
+										error.message;
+									})
+								})
+							</script>
+							<?php
 						}
 					}
 					$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());

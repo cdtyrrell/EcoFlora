@@ -67,9 +67,9 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
 // extract these vars from fmchecklist table
 //const projID = 'jamaican-plants'; //'10230';
 //const iconictaxon = 'Plantae'; 
-let taxalist = '';
+//let taxalist = '';
 
-fetchiNatPage1(externalProjID, iconictaxon)
+/* fetchiNatPage1(externalProjID, iconictaxon)
     .then(pageone => {
         const totalresults = pageone.total_results;
         const perpage = pageone.per_page;
@@ -93,4 +93,4 @@ fetchiNatPage1(externalProjID, iconictaxon)
         .catch(error => {
             error.message;
         })
-    })
+    }) */
