@@ -680,6 +680,15 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 								echo ' - <span class="vern-span">'.$sppArr['vern'].'</span>';
 							}
 							if($clid && $clArray['dynamicsql']){
+								?>
+								<span class="view-specimen-span printoff">
+									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank" style="text-decoration: none;">
+										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
+									</a>
+								</span>
+								<?php
+							}
+							if(isset($dynamPropsArr)){ 
 								$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
 								if($arrforexternalserviceapi == '') {
 									$arrforexternalserviceapi .= "'" . $scinameasid . "'";
@@ -687,15 +696,10 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
 								}
 								?>
-								<span class="view-specimen-span printoff">
-									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
-										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
+								<span class="printoff">
+									<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
+										<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
 									</a>
-									<?php if(isset($dynamPropsArr)){ ?>
-										<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
-											<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
-										</a>
-									<?php } ?>
 								</span>
 								<?php
 							}

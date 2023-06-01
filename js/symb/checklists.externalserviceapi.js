@@ -63,34 +63,17 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
     }
 }
 
-// TO DO:
-// extract these vars from fmchecklist table
-//const projID = 'jamaican-plants'; //'10230';
-//const iconictaxon = 'Plantae'; 
-//let taxalist = '';
-
-/* fetchiNatPage1(externalProjID, iconictaxon)
-    .then(pageone => {
-        const totalresults = pageone.total_results;
-        const perpage = pageone.per_page;
-        const loopnum = Math.ceil(totalresults / perpage);
-        const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
-        fetchiNatAdditionalPages(loopnum, externalProjID, iconictaxon)
-        .then(pagestwoplus => {
-            const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
-            taxalist = taxalist1.concat(taxalist2.flat());
-            checklisttaxa.forEach( taxon => { 
-                let anchortag = document.getElementById('a-'+taxon);
-                let imgtag = document.getElementById('i-'+taxon);
-                let taxonwithspaces = taxon.replaceAll('-', ' ');
-                const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
-                if(idx >= 0) {
-                    imgtag.setAttribute("style", "width:12px;display:inline;");
-                    anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
-                }
-            })
-        })
-        .catch(error => {
-            error.message;
-        })
-    }) */
+// check for an iNaturalist project id
+			// Optimize request based on a zoom level that will return 4 tiles within project viewbox
+			// Calculate tiles by taking the 25% and 75% positions in x and y to get the centers of nw, ne, sw, se tiles
+			// Start a promise 
+			//   ping the api for nw tile.
+			//   Must wait at least 0.7 seconds as per iNaturalist documentation
+			//   ping the api for se tile.
+			//   if ne tile != nw && ne != se,
+			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
+			// 	ping the api for ne tile
+			//   if sw tile != se && sw != nw
+			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
+			// 	ping the api for sw tile
+			// fulfil promise by sending points from all tiles
