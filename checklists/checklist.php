@@ -758,6 +758,11 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
 							?>
 							<script>
+								// iNaturalist Integration
+								// Note: the two part request (...Page1 vs ...AdditionalPages) is performed
+								// to allow for a variable number of total results. There will always be a 
+								// first page, but there may be 0 or more additional pages. The answer is
+								// extracted from the response to the first ("Page1") fetch request.
 							fetchiNatPage1(externalProjID, iconictaxon)
 								.then(pageone => {
 									const totalresults = pageone.total_results;
