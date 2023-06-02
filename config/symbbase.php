@@ -4,6 +4,7 @@ header('Cache-control: private'); // IE 6 FIX
 date_default_timezone_set('America/Phoenix');
 $CODE_VERSION = '3.0.7';
 
+
 if(!isset($CLIENT_ROOT) && isset($clientRoot)) $CLIENT_ROOT = $clientRoot;
 if(substr($CLIENT_ROOT,-1) == '/') $CLIENT_ROOT = substr($CLIENT_ROOT,0,strlen($CLIENT_ROOT)-1);
 if(!isset($SERVER_ROOT) && isset($serverRoot)) $SERVER_ROOT = $serverRoot;

@@ -5,22 +5,7 @@
 |  Programming performed by Christopher D. Tyrrell, all errors and
 |   omissions are his.
 *-------------------------------------------------------------------*/
-//
-/*---------------------------------------------------------------------
-|
-|  Purpose:  Retreive the name and iNaturalist taxon ID for
-|	   all taxa associated with an iNaturalist project.
-|
-|  Pre-condition: 
-|
-|  Post-condition: 
-|
-|  Parameters:
-|	 param1 -- def'n.
-|	 param2 -- def'n.
-|
-|  Returns:  
-*-------------------------------------------------------------------*/
+
 
 
 
@@ -66,8 +51,8 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
         }
         const resps = await Promise.all(allapiurls.map(async (url) => {
             const resp = await fetch(url);
-            // iNaturalist API requests throttling to < 100 requests per minute
-            await new Promise(governer => setTimeout(governer, 600));
+            // Throttle to < 100 requests per minute as per iNaturalist API guidelines 
+            await new Promise(governor => setTimeout(governor, 600));
             return resp;
         }));
         const resppromises = resps.map(result => result.json());
@@ -78,34 +63,59 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
     }
 }
 
-// TO DO:
-// extract these vars from fmchecklist table
-//const projID = 'jamaican-plants'; //'10230';
-//const iconictaxon = 'Plantae'; 
-let taxalist = '';
+async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade = 'research', rank = 'species') {
+    let apiurl = '';
 
-fetchiNatPage1(externalProjID, iconictaxon)
-    .then(pageone => {
-        const totalresults = pageone.total_results;
-        const perpage = pageone.per_page;
-        const loopnum = Math.ceil(totalresults / perpage);
-        const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
-        fetchiNatAdditionalPages(loopnum, externalProjID, iconictaxon)
-        .then(pagestwoplus => {
-            const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
-            taxalist = taxalist1.concat(taxalist2.flat());
-            checklisttaxa.forEach( taxon => { 
-                let anchortag = document.getElementById('a-'+taxon);
-                let imgtag = document.getElementById('i-'+taxon);
-                let taxonwithspaces = taxon.replaceAll('-', ' ');
-                const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
-                if(idx >= 0) {
-                    imgtag.setAttribute("style", "width:12px;display:inline;");
-                    anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
-                }
-            })
-        })
-        .catch(error => {
-            error.message;
-        })
-    })
+
+    if(iconictaxon == '') {
+        // add something here to switch to API v1 if v2 fails?
+        apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
+    } else {
+        apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&iconic_taxa=${iconictaxon}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
+    }
+    const resp = await fetch(apiurl);
+    try {
+        if(resp.ok) {
+            const page1 = await resp.json();
+            return page1;
+        }
+    } catch(err) {
+        console.error(err);
+    }
+}
+// check for an iNaturalist project id
+
+// x1. on create or update: Pull place_id from project json, then pull lat/long from place json (two calls).
+// "bounding_box_geojson": {"coordinates":...}
+// x2a. Calculate tiles for extent. Use some formula to dynamically gauge zoom level... i.e., limit the number of api calls to X.
+// zoom = round(log_2( 180/maxbboxdiff ))
+// 2b. Dynamically ping api for tile points based geo info; Can only call one tile per second.
+// "id","latitude","longitude"
+
+/*
+array[0]['ll']=>$r1->decimallatitude.','.$r1->decimallongitude
+						var pt = new google.maps.LatLng(<?php echo $pArr['ll']; ?>);
+						llBounds.extend(pt);
+
+                        							var m<?php echo $mCnt; ?> = new google.maps.Marker({position: pt, map:map, title:"<?php echo $pArr['sciname']; ?>", icon:pIcon});
+
+*/
+
+// 20221125: new plan, "dynamic" plotting: get current extent, then ping appropriate zoom level (one tile? four tiles?) for inat.
+// google.maps.getNorthEast()
+// google.maps.getSouthWest()
+
+
+
+			// Calculate tiles by taking the 25% and 75% positions in x and y to get the centers of nw, ne, sw, se tiles
+			// Start a promise 
+			//   ping the api for nw tile.
+			//   Must wait at least 0.7 seconds as per iNaturalist documentation
+			//   ping the api for se tile.
+			//   if ne tile != nw && ne != se,
+			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
+			// 	ping the api for ne tile
+			//   if sw tile != se && sw != nw
+			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
+			// 	ping the api for sw tile
+			// fulfil promise by sending points from all tiles
