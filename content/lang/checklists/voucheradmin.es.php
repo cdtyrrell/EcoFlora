@@ -31,6 +31,7 @@ $LANG['REMOVESEARCH'] = 'Quitar Declaraci&oacute;n de B&uacute;squeda';
 $LANG['NON_VOUCHERED'] = 'Taxa sin Vouchers';
 $LANG['MISSINGTAXA'] = 'Taxa Faltantes';
 $LANG['VOUCHCONF'] = 'Voucher Conflictivos';
+$LANG['EXTVOUCH'] = 'Connectar Vouchers desde un Servicio Externo (por ejemplo, iNaturalist)';
 $LANG['REPORTS'] = 'Reportes';
 $LANG['NONVOUCHTAX'] = 'Listado de Taxa sin vouchers';
 $LANG['OCCURNONVOUCH'] = 'Ocurrencias para taxa sin vouchers';
@@ -44,6 +45,7 @@ $LANG['NOVOUCHLOCA'] = 'No se localizaron vouchers';
 $LANG['LISTEDBELOWARESPECINSTRUC'] = 'A continuaci&oacute;n se enumeran las especies de la lista de control que no han sido vinculadas a esp&eacute;cimenes voucher.
 Haga clic en el nombre para utilizar la instrucci&oacute;n de b&uacute;squeda de arriba para consultar de forma din&aacute;mica el conjunto de datos de ocurrencia de
 espec&iacute;menes voucher posibles. Utilice la lista desplegable a la derecha para mostrar los espec&iacute;menes en un formato de tabla.';
+$LANG['LISTEDBELOWEXTERNAL'] = "A continuaci&oacute;n se enumeran las especies de la lista. Usando las funciones de búsqueda del sitio web externo, localice una observaci&oacute;n que le sirva como posible comprobante para cada tax&oacute;n. Copie el ID de la observación (por ejemplo, de la &uacute;ltima parte de la URL) y p&eacute;guelo en el cuadro de texto correspondiente. Se pueden agregar m&uacute;ltiples comprobantes para cada tax&oacute;n; utilice comas para separar los n&uacute;meros de identificaci&oacute;n.";
 $LANG['ALLTAXACONTAINVOUCH'] = 'Todos los taxones contienen enlaces a vouchers';
 $LANG['ADDITIONAL'] = 'Consulte el Panel de opciones en la página central para obtener opciones adicionales de exportación e impresión que incorporan dinámicamente selecciones de opciones.';
 $LANG['FULLSPECLIST'] = 'Listado de especies completo (CSV)';
