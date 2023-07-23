@@ -32,6 +32,7 @@ $LANG['NON_VOUCHERED'] = 'Non-Vouchered Taxa';
 $LANG['MISSINGTAXA'] = 'Missing Taxa';
 $LANG['VOUCHCONF'] = 'Voucher Conflicts';
 $LANG['EXTVOUCH'] = 'Add Vouchers from an External Service (e.g., iNaturalist)';
+$LANG['LINKEXT'] = 'Link external vouchers';
 $LANG['REPORTS'] = 'Reports';
 $LANG['NONVOUCHTAX'] = 'Non-vouchered taxa list';
 $LANG['OCCURNONVOUCH'] = 'Occurrences for non-vouchered taxa';

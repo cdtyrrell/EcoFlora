@@ -128,7 +128,6 @@ if(isset($clArray['dynamicProperties']) && $clArray['dynamicProperties']){
 		let xsid = document.getElementById('externalserviceid');
 		let xstaxonfilter = document.getElementById('externalserviceiconictaxon');
 		if(xsrv.value == '') {
-			//disable = TRUE;
 			xsid.setAttribute("disabled","");
 			xstaxonfilter.setAttribute("disabled","");
 		} else {
