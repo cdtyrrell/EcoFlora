@@ -122,6 +122,20 @@ if(isset($clArray['dynamicProperties']) && $clArray['dynamicProperties']){
 		mapWindow=open("<?php echo $CLIENT_ROOT; ?>/checklists/tools/mappolyaid.php?clid=<?php echo $clid; ?>&formname=editclmatadata&latname=latcentroid&longname=longcentroid&latdef="+latDec+"&lngdef="+lngDec,"mapaid","resizable=0,width=1000,height=800,left=20,top=20");
 	    if(mapWindow.opener == null) mapWindow.opener = self;
 	}
+
+	function enableDisableExtServiceFields() {
+		let xsrv = document.getElementById('externalservice');
+		let xsid = document.getElementById('externalserviceid');
+		let xstaxonfilter = document.getElementById('externalserviceiconictaxon');
+		if(xsrv.value == '') {
+			//disable = TRUE;
+			xsid.setAttribute("disabled","");
+			xstaxonfilter.setAttribute("disabled","");
+		} else {
+			xsid.removeAttribute("disabled");
+			xstaxonfilter.removeAttribute("disabled");
+		}
+	}
 </script>
 <?php
 if(!$clid){
@@ -180,7 +194,7 @@ if(!$clid){
 			</div>
 			<div>
 				<b><?php echo (isset($LANG['EXTSERVICE'])?$LANG['EXTSERVICE']:'External Service (e.g., iNaturalist) to associate with this checklist [optional]');?></b><br/>
-				<select name="externalservice">
+				<select name="externalservice" id="externalservice" onchange="enableDisableExtServiceFields()">
 					<option value=""></option>
 					<option value="">-------------------------------</option>
 					<option value="inaturalist" <?php echo (($dynamPropsArr['externalservice']=='inaturalist')?'selected':''); ?>>iNaturalist</option>
@@ -189,10 +203,10 @@ if(!$clid){
 			<div style="width:100%;margin-top:5px">
 				<div style="float:left;width:25%">
 				<b><?php echo (isset($LANG['EXTSERVICEID'])?$LANG['EXTSERVICEID']:'Project ID from External Service');?></b><br/>
-				<input type="text" name="externalserviceid" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
+				<input type="text" name="externalserviceid" id="externalserviceid" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceid']:''); ?>" />
 				</div><div style="float:left;margin-left:15px;">
 				<b><?php echo (isset($LANG['EXTSERVICETAXON'])?$LANG['EXTSERVICETAXON']:'External Service Taxon Filter [optional]');?></b><br/>
-				<input type="text" name="externalserviceiconictaxon" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceiconictaxon']:''); ?>" />
+				<input type="text" name="externalserviceiconictaxon" id="externalserviceiconictaxon" style="width:100%" value="<?php echo ($dynamPropsArr?$dynamPropsArr['externalserviceiconictaxon']:''); ?>" />
 				</div>
 			</div>
 			<div id="locDiv" style="clear:both;margin-top:5px;">
