@@ -84,11 +84,13 @@ $clMeta = $clManager->getClMetaData();
 				}
 			
 				$clMeta = $clManager->getClMetaData();
+				?> 
+				map.fitBounds(llBounds);
+				map.panToBounds(llBounds);
 
 				// Optimize request based on a zoom level that will return 4 tiles within current bounds
 				//     Alternative: get project bounding box by: pulling place_id from project json, then pull lat/long from place json (two iNat calls). "bounding_box_geojson": {"coordinates":...}
 				// Determine x difference and y difference and get the max
-				?> 
 
 				function ll2slippytile(lon, lat, zoom) {
 					// https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers_2
@@ -210,8 +212,6 @@ $clMeta = $clManager->getClMetaData();
 					}
 				}
 				?>
-			map.fitBounds(llBounds);
-			map.panToBounds(llBounds);
 			<?php
 			}
 			?>
