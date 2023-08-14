@@ -85,7 +85,7 @@ $clMeta = $clManager->getClMetaData();
 			}
 			$clMeta = $clManager->getClMetaData();
 			//Check for and add checklist polygon
-			$clMeta = $clManager->getClMetaData();
+
 			if($clMeta['footprintwkt']){
 				//Add checklist polygon
 				$wkt = $clMeta['footprintwkt'];
