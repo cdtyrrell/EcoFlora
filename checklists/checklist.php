@@ -646,9 +646,13 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 					else{
 						//Display taxa
 						echo '<div id="taxalist-div">';
+						if($clid && $clArray['dynamicProperties']){
+							$dynamPropsArr = json_decode($clArray['dynamicProperties'], true);
+						}
 						$voucherArr = array();
 						if($showVouchers) $voucherArr = $clManager->getVoucherArr();
 						$prevGroup = '';
+						$arrforexternalserviceapi = '';
 						foreach($taxaArray as $tid => $sppArr){
 							$group = $sppArr['taxongroup'];
 							if($group != $prevGroup){
@@ -674,8 +678,23 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							if($clid && $clArray['dynamicsql']){
 								?>
 								<span class="view-specimen-span printoff">
-									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank">
+									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo $tid."&targetclid=".$clid."&targettid=".$tid;?>" target="_blank" style="text-decoration: none;">
 										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
+									</a>
+								</span>
+								<?php
+							}
+							if(isset($dynamPropsArr)){ 
+								$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
+								if($arrforexternalserviceapi == '') {
+									$arrforexternalserviceapi .= "'" . $scinameasid . "'";
+								} else {
+									$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
+								}
+								?>
+								<span class="printoff">
+									<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
+										<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
 									</a>
 								</span>
 								<?php
@@ -728,6 +747,46 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							echo "</div>\n";
 						}
 						echo '</div>';
+						if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
+							echo '<script>const externalProjID = "' . ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') . '";';
+							echo 'const iconictaxon = "' . ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') . '";';
+							echo 'const checklisttaxa = [' . $arrforexternalserviceapi . '];</script>';
+							echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
+							?>
+							<script>
+								// iNaturalist Integration
+								// Note: the two part request (...Page1 vs ...AdditionalPages) is performed
+								// to allow for a variable number of total results. There will always be a 
+								// first page, but there may be 0 or more additional pages. The answer is
+								// extracted from the response to the first ("Page1") fetch request.
+							fetchiNatPage1(externalProjID, iconictaxon)
+								.then(pageone => {
+									const totalresults = pageone.total_results;
+									const perpage = pageone.per_page;
+									const loopnum = Math.ceil(totalresults / perpage);
+									const taxalist1 = extractiNatTaxaIdAndName(pageone.results);
+									fetchiNatAdditionalPages(loopnum, externalProjID, iconictaxon)
+									.then(pagestwoplus => {
+										const taxalist2 = pagestwoplus.map(page => extractiNatTaxaIdAndName(page.results))
+										taxalist = taxalist1.concat(taxalist2.flat());
+										checklisttaxa.forEach( taxon => { 
+											let anchortag = document.getElementById('a-'+taxon);
+											let imgtag = document.getElementById('i-'+taxon);
+											let taxonwithspaces = taxon.replaceAll('-', ' ');
+											const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
+											if(idx >= 0) {
+												imgtag.setAttribute("style", "width:12px;display:inline;");
+												anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
+											}
+										})
+									})
+									.catch(error => {
+										error.message;
+									})
+								})
+							</script>
+							<?php
+						}
 					}
 					$taxaLimit = ($showImages?$clManager->getImageLimit():$clManager->getTaxaLimit());
 					if($clManager->getTaxaCount() > (($pageNumber)*$taxaLimit)){

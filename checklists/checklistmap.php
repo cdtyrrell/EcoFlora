@@ -16,6 +16,7 @@ if($thesFilter) $clManager->setThesFilter($thesFilter);
 if($taxonFilter) $clManager->setTaxonFilter($taxonFilter);
 
 $coordArr = $clManager->getVoucherCoordinates();
+$clMeta = $clManager->getClMetaData();
 ?>
 <html>
 <head>
@@ -23,6 +24,20 @@ $coordArr = $clManager->getVoucherCoordinates();
 	<?php
 	//include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
+
+	// If checklist is associated with an external service (i.e., iNaturalist), deploy client-side javascript
+	if($clMeta['dynamicProperties']){
+		$dynamPropsArr = json_decode($clMeta['dynamicProperties'], true);
+		if(isset($dynamPropsArr['externalservice']) && $dynamPropsArr['externalservice'] == 'inaturalist') {
+			echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
+			echo '<script>';
+			echo 'const urltail = ".grid.json?mappable=true&project_id='. ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'').'&rank='. ($dynamPropsArr['externalservicerank']?$dynamPropsArr['externalservicerank']:'species').'&iconic_taxa='. ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'').'&quality_grade='. ($dynamPropsArr['externalservicegrade']?$dynamPropsArr['externalservicegrade']:'research').'&order=asc&order_by=updated_at";';
+			echo 'const inatprojid = "'. ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') .'";';
+			echo 'const inaticonic = "'. ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') .'";';
+			echo '</script>';
+		}
+
+	} 
 	?>
 	<script src="//maps.googleapis.com/maps/api/js?v=3.exp&libraries=drawing<?php echo (isset($GOOGLE_MAP_KEY) && $GOOGLE_MAP_KEY?'&key='.$GOOGLE_MAP_KEY:''); ?>&callback=Function.prototype"></script>
 	<script type="text/javascript">
@@ -44,6 +59,7 @@ $coordArr = $clManager->getVoucherCoordinates();
 				map = new google.maps.Map(document.getElementById("map_canvas"), dmOptions);
 				var vIcon = new google.maps.MarkerImage("../images/google/smpin_red.png");
 				var pIcon = new google.maps.MarkerImage("../images/google/smpin_blue.png");
+				var inatIcon = new google.maps.MarkerImage("../images/google/smpin_green.png");
 				<?php
 				$mCnt = 0;
 				foreach($coordArr as $tid => $cArr){
@@ -68,6 +84,8 @@ $coordArr = $clManager->getVoucherCoordinates();
 				}
 			}
 			$clMeta = $clManager->getClMetaData();
+			//Check for and add checklist polygon
+
 			if($clMeta['footprintwkt']){
 				//Add checklist polygon
 				$wkt = $clMeta['footprintwkt'];
