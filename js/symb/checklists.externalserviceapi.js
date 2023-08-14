@@ -17,6 +17,8 @@ function extractiNatTaxaIdAndName(resultsjson) {
     return outputArr;
 }
 
+// Note: as of the time of coding, iNaturalist API v2 is in beta and this section may require some adjusting post-release.
+//       API v1 does not allow custom fields (i.e., taxa names) to be returned.
 async function fetchiNatPage1(projID, iconictaxon = '', qualitygrade = 'research') {
     let apiurl = '';
     if(iconictaxon == '') {
@@ -65,10 +67,8 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
 
 async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade = 'research', rank = 'species') {
     let apiurl = '';
-
-
     if(iconictaxon == '') {
-        // add something here to switch to API v1 if v2 fails?
+        // add something here to switch to API v2 if v1 fails?
         apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
     } else {
         apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&iconic_taxa=${iconictaxon}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
@@ -83,6 +83,25 @@ async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade =
         console.error(err);
     }
 }
+
+
+async function iNatGetVoucher(obsID) {
+    let apiurl = `https://api.inaturalist.org/v1/observation`; //ADD NECESSARY CODE TO RETURN species, user, number, date
+    const resp = await fetch(apiurl);
+    try {
+        if(resp.ok) {
+            const obsjson = await resp.json();
+            return obsjson;
+        }
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+// LINK VOUCHER
+// split on comma
+
+
 // check for an iNaturalist project id
 
 // x1. on create or update: Pull place_id from project json, then pull lat/long from place json (two calls).

@@ -31,6 +31,7 @@ $LANG['REMOVESEARCH'] = 'Supprimer Instruction de Recherche';
 $LANG['NON_VOUCHERED'] = 'Taxons sans Échantillons';
 $LANG['MISSINGTAXA'] = 'Taxons Manquants';
 $LANG['VOUCHCONF'] = 'Conflits Échantillons';
+$LANG['EXTVOUCH'] = "Connecter Échantillons d'un Service Externe (par exemple, iNaturalist)";
 $LANG['REPORTS'] = 'Rapports';
 $LANG['NONVOUCHTAX'] = 'Liste des Taxons sans Échantillons';
 $LANG['OCCURNONVOUCH'] = 'Occurrences pour les Taxons sans Échantillons';
@@ -44,6 +45,7 @@ $LANG['NOVOUCHLOCA'] = 'Aucun échantillon localisé';
 $LANG['LISTEDBELOWARESPECINSTRUC'] = "Ci-dessous figurent les espèces de la liste qui n'ont pas d'échantillons liés..
 Cliquez sur le nom pour utiliser l'instruction de recherche ci-dessus pour interroger dynamiquement l'ensemble de données
 pour des échantillons possibles. Utilisez le menu déroulant à droite pour afficher les échantillons sous forme de tableau.";
+$LANG['LISTEDBELOWEXTERNAL'] = "Vous trouverez ci-dessous les espèces de la liste. À l'aide des fonctions de recherche du site Web externe, localisez une observation qui servira de référence possible pour chaque taxon. Copiez l'ID de l'observation (par exemple, à partir de la dernière partie de l'URL) et collez-le dans la zone de texte correspondante. Plusieurs bons peuvent être ajoutés pour chaque taxon; utilisez des virgules pour séparer les numéros d'identification.";
 $LANG['ALLTAXACONTAINVOUCH'] = 'Tous les taxons contiennent des échantillons';
 $LANG['ADDITIONAL'] = "Voir le panneau d'options sur la page centrale pour des options d'exportation et d'impression supplémentaires qui intègrent dynamiquement des sélections d'options";
 $LANG['FULLSPECLIST'] = 'Liste complète des espèces (CSV)';

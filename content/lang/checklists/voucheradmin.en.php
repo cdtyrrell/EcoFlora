@@ -31,6 +31,8 @@ $LANG['REMOVESEARCH'] = 'Remove Search Statement';
 $LANG['NON_VOUCHERED'] = 'Non-Vouchered Taxa';
 $LANG['MISSINGTAXA'] = 'Missing Taxa';
 $LANG['VOUCHCONF'] = 'Voucher Conflicts';
+$LANG['EXTVOUCH'] = 'Add Vouchers from an External Service (e.g., iNaturalist)';
+$LANG['LINKEXT'] = 'Link external vouchers';
 $LANG['REPORTS'] = 'Reports';
 $LANG['NONVOUCHTAX'] = 'Non-vouchered taxa list';
 $LANG['OCCURNONVOUCH'] = 'Occurrences for non-vouchered taxa';
@@ -44,6 +46,7 @@ $LANG['NOVOUCHLOCA'] = 'No vouchers located';
 $LANG['LISTEDBELOWARESPECINSTRUC'] = 'Listed below are species from the checklist that do not have linked specimen vouchers.
 Click on name to use the search statement above to dynamically query the occurrence dataset for
 possible voucher specimens. Use the pulldown to the right to display the specimens in a table format.';
+$LANG['LISTEDBELOWEXTERNAL'] = "Listed below are species from the checklist. Using the search functions from the external website, locate an observation that will serve as a possible voucher for each taxon. Copy the observation's ID (for example, from the last portion of the URL) and paste it in the corresponding text box. Multiple vouchers may be added for each taxon; use commas to separate the ID numbers.";
 $LANG['ALLTAXACONTAINVOUCH'] = 'All taxa contain voucher links';
 $LANG['ADDITIONAL'] = 'See the Option Panel on the central page for more versatile export and print options that dynamically incorporate option selections';
 $LANG['FULLSPECLIST'] = 'Full species list (CSV)';
