@@ -37,12 +37,13 @@ if($isEditor){
 			}
 			label {
 				display: inline-block;
-				width: 250px;
+				width: 150px;
 				text-align: right;
 			}
 		</style>
 			<?php
 			echo '<div id="taxalist-div">';
+			echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
 			$prevGroup = '';
 			foreach($taxaArray as $tid => $sppArr){
 				$group = $sppArr['taxongroup'];
@@ -60,12 +61,11 @@ if($isEditor){
 				echo '<div class="taxon-container">';
 				echo '<a href="#" target="_blank" id="a-' . $taxonWithDashes . '" style="pointer-events:none;">'; 
 				echo '<label>'.$sppArr['sciname'].' '.$sppArr["author"].'</label></a>&nbsp;';
-				//class="taxon-span" 
 				?>
-				<input type="text" name="<?php echo $tid; ?>" id="i-<?php echo $taxonWithDashes; ?>">
+				<input type="text" name="<?php echo $tid; ?>" id="i-<?php echo $taxonWithDashes; ?>" style="background-color:#E3E7EB">
 				<span class="view-specimen-span printoff">
 					<a href="#" target="_blank" style="text-decoration: none;">
-						<img src="../images/link.png" style="width:12px;" title="<?php echo (isset($LANG['LINKEXT'])?$LANG['LINKEXT']:'Link external vouchers'); ?>" />
+						<?php echo (isset($LANG['LOOKUPEXT'])?$LANG['LOOKUPEXT']:'Lookup external vouchers'); ?>
 					</a>
 				</span>
 				<?php
@@ -77,6 +77,7 @@ if($isEditor){
 					$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
 				}
 			}
+			echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
 			echo '</div>';
 			//if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
 				echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
@@ -112,7 +113,7 @@ if($isEditor){
 									if(idx >= 0) {
 										console.log('yep');
 										anchortag.setAttribute("style", "pointer-events:auto;");
-										imgtag.setAttribute("style", "background-color: #f1e740;");
+										imgtag.setAttribute("style", "background-color: #FFFFFF;");
 										anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
 									}
 								})
