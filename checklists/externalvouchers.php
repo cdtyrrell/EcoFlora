@@ -2,6 +2,7 @@
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherReport.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
+include_once($SERVER_ROOT.'/classes/ImInventories.php');
 include_once($SERVER_ROOT.'/content/lang/checklists/voucheradmin.'.$LANG_TAG.'.php');
 
 $clid = array_key_exists('clid', $_REQUEST) ? filter_var($_REQUEST['clid'], FILTER_SANITIZE_NUMBER_INT) : 0;
@@ -11,10 +12,18 @@ $displayMode = (array_key_exists('displaymode', $_REQUEST) ? filter_var($_REQUES
 
 $clManager = new ChecklistManager();
 $clVoucherManager = new ChecklistVoucherReport();
+
 if($clid) {
 	$clManager->setClid($clid);
 	$clVoucherManager->setClid($clid);
-	//$clVoucherManager->setCollectionVariables();
+	$metaArr = array();
+	$inventoryManager = new ImInventories();
+	$inventoryManager->setClid($clid);
+	$metaArr = $inventoryManager->getChecklistMetadata($pid);
+	if(isset($metaArr['dynamicProperties']) && $metaArr['dynamicProperties']){
+		$dynamPropsArr = array();
+		$dynamPropsArr = json_decode($metaArr['dynamicProperties'], true);
+	}
 }
 
 $isEditor = 0;
@@ -79,14 +88,13 @@ if($isEditor){
 			}
 			echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
 			echo '</div>';
-			//if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
+			if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
 				echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
 				?>
 				<script>
 					<?php 
 					echo 'const checklisttaxa = [' . $arrforexternalserviceapi . '];';
-					//echo 'const externalProjID = "' . ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') . '";';
-					echo 'const externalProjID = "biodiversity-of-puerto-rico";'; //DEBUG ONLY!!!!!!!!!!!!!
+					echo 'const externalProjID = "' . ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') . '";';
 					echo 'const iconictaxon = "' . ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') . '";';
 					?>
 
@@ -123,7 +131,7 @@ if($isEditor){
 							})
 						})
 				</script>
-			<?php //} ?>
+			<?php } ?>
 		</div>
     </div>
 	</div>
