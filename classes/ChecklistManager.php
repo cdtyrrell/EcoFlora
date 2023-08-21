@@ -10,6 +10,7 @@ class ChecklistManager extends Manager{
 	private $clMetadata;
 	private $childClidArr = array();
 	private $voucherArr = array();
+	private $externalVoucherArr = array();
 	private $pid = '';
 	private $projName = '';
 	private $taxaList = array();
@@ -794,6 +795,47 @@ class ChecklistManager extends Manager{
 
 	public function getVoucherArr(){
 		return $this->voucherArr;
+	}
+
+	private function setExternalVoucherArr(){
+		$clidStr = $this->clid;
+		if($this->childClidArr){
+			$clidStr .= ','.implode(',',array_keys($this->childClidArr));
+		}
+		$vSql = 'SELECT clid, tid, notes, dynamicProperties 
+			FROM fmchklstcoordinates 
+			WHERE (clid IN ('.$clidStr.')) AND (tid IN('.implode(',',array_keys($this->taxaList)).')) AND notes = "EXTERNAL_VOUCHER"';
+		$vResult = $this->conn->query($vSql);
+		while ($row = $vResult->fetch_object()){
+			$dynPropArr = json_decode($row->dynamicProperties);
+			$displayStr = '';
+			foreach($dynPropArr as $vouch) {
+				$accumulateStr = ($vouch->user?$vouch->user:'');
+				if(strlen($accumulateStr) > 25){
+					//Collector string is too big, thus reduce
+					$strPos = strpos($accumulateStr,';');
+					if(!$strPos) $strPos = strpos($accumulateStr,',');
+					if(!$strPos) $strPos = strpos($accumulateStr,' ',10);
+					if($strPos) $accumulateStr = substr($accumulateStr,0,$strPos).'...';
+				}
+				if($vouch->date) $accumulateStr .= ' '.$vouch->date;
+				if(!trim($accumulateStr)) $accumulateStr = 'undefined voucher';
+				$accumulateStr .= ' ['.$vouch->repository.($vouch->id?'-'.$vouch->id:'').']';
+				$accumulateStr = '<a href="https://www.inaturalist.org/observations/'.$vouch->id.'" target="_blank">' . $accumulateStr . '</a>, ';
+				$displayStr .= $accumulateStr;
+			}
+			$this->externalVoucherArr[$row->tid] = trim($displayStr);
+		}
+		$vResult->free();
+	}
+
+	public function getExternalVoucherArr(){
+		if(count($this->externalVoucherArr) > 0) {
+			return $this->externalVoucherArr;
+		} else {
+			$this->setExternalVoucherArr();
+			return $this->externalVoucherArr;
+		}
 	}
 
 	public function getClName(){
