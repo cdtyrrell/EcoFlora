@@ -111,6 +111,12 @@ function retrieveVoucherInfo(taxonID) {
     let idArr = parseVoucherIDs('i-'+taxonID).join(',');
     //iNatGetVoucher(idArr);
     //ADD NECESSARY CODE TO RETURN species, user, number, date
-    let reportingSpan = document.getElementById('r-'+taxonID);
-    reportingSpan.innerHTML = iNatGetVoucher(idArr);    //idArr;
+    iNatGetVoucher(idArr)
+        .then(resp => {
+            let reportingSpan = document.getElementById('r-'+taxonID);
+            reportingSpan.innerHTML = "got it";
+        })
+        .catch(error => {
+            error.message;
+        })
 }
