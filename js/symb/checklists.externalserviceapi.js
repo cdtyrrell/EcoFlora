@@ -85,8 +85,8 @@ async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade =
 
 
 async function iNatGetVoucher(obsID) {
-    let apiurl = `https://api.inaturalist.org/v1/observation/`+obsID;
-    const resp = await fetch(apiurl);
+    let apiurl = `https://api.inaturalist.org/v1/observations/`;
+    const resp = await fetch(apiurl+obsID);
     try {
         if(resp.ok) {
             const obsjson = await resp.json();
@@ -110,11 +110,12 @@ function parseVoucherIDs(textboxID) {
 function retrieveVoucherInfo(taxonID) {
     let idArr = parseVoucherIDs('i-'+taxonID).join(',');
     //iNatGetVoucher(idArr);
-    //ADD NECESSARY CODE TO RETURN species, user, number, date
+    //ADD NECESSARY CODE TO RETURN species, user, number, date: chris_earle 6 May 2023 [iNat]
     iNatGetVoucher(idArr)
         .then(resp => {
+            const retrievedVouch = resp.results[0].taxon.name + ' ' + resp.results[0].user.login + ' ' + resp.results[0].observed_on_details.date + ' [iNat]';
             let reportingSpan = document.getElementById('r-'+taxonID);
-            reportingSpan.innerHTML = "got it";
+            reportingSpan.innerHTML = retrievedVouch;
         })
         .catch(error => {
             error.message;

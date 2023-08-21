@@ -130,7 +130,6 @@ if($isEditor){
 									let taxonwithspaces = taxon.replaceAll('-', ' ');
 									const idx = taxalist.findIndex( elem => elem.name === taxonwithspaces);
 									if(idx >= 0) {
-										console.log('yep');
 										anchortag.setAttribute("style", "pointer-events:auto;");
 										imgtag.setAttribute("style", "background-color: #FFFFFF;");
 										anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
