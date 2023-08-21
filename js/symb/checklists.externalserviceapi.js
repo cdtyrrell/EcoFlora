@@ -81,6 +81,7 @@ async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade =
     } catch(err) {
         console.error(err);
     }
+
 }
 
 
