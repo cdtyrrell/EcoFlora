@@ -150,7 +150,7 @@ if($isEditor){
 											anchortag.setAttribute("style", "pointer-events:auto;");
 											txtboxtag.setAttribute("style", "background-color: #FFFFFF;");
 											labeltag.setAttribute("style", "text-decoration: underline");
-											anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}`);
+											anchortag.setAttribute("href", `https://www.inaturalist.org/observations?project_id=${externalProjID}&taxon_id=${taxalist[idx].id}&quality_grade=research`);
 										}
 									})
 								})
