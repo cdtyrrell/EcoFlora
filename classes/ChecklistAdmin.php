@@ -242,6 +242,19 @@ class ChecklistAdmin extends Manager{
 		return $status;
 	}
 
+	public function addExternalVouchers($tid,$dataAsJson){
+		// EG suggested storing external (e.g., iNaturalist) voucher records in the `fmchklstcoordinates` table as this table
+		//   was un- or under-used as of schema 3.0. The `notes` column serves as a flag for these vouchers. --CDT 2023-08-21
+		$status = 'Success';
+		if(is_numeric($tid)){ 
+			$sql = "INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,notes,dynamicProperties) VALUES(".$this->clid.",".$tid.",-1,-1,'EXTERNAL_VOUCHER','".$dataAsJson."')";
+			if(!$this->conn->query($sql)){
+				$status = 'ERROR: unable to store vouchers!. '.$this->conn->error;
+			}
+		}
+		return $status;
+	}
+
 	//Point functions
 	public function addPoint($tid,$lat,$lng,$notes){
 		$status = '';

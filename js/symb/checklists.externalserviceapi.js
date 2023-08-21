@@ -126,7 +126,7 @@ function retrieveVoucherInfo(taxonID) {
             }
             storeJsonStr += encodeURIComponent(']');
             reportingSpan.innerHTML = retrievedVouch;
-            hiddenVoucherField.setAttribute("data-json", hiddenVoucherField.data-json + storeJsonStr);
+            hiddenVoucherField.setAttribute("value", hiddenVoucherField.value + storeJsonStr);
         })
         .catch(error => {
             error.message;

@@ -236,7 +236,7 @@ if($clid && $isEditor){
 				<li><a href="vamissingtaxa.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos.'&displaymode='.($tabIndex==1?$displayMode:0).'&excludevouchers='.(isset($_POST['excludevouchers'])?$_POST['excludevouchers']:''); ?>"><span><?php echo $LANG['MISSINGTAXA'];?></span></a></li>
 				<li><a href="vaconflicts.php?clid=<?php echo $clid.'&pid='.$pid.'&start='.$startPos; ?>"><span><?php echo $LANG['VOUCHCONF'];?></span></a></li>
 				<?php 
-				if($clManager->getAssociatedExternalService()) echo '<li><a href="externalvouchers.php?clid='.$clid.'&pid='.$pid.'&start='.$startPos.'"><span>' . $LANG['EXTVOUCH'] . '</span></a></li>';
+				if($clManager->getAssociatedExternalService()) echo '<li><a href="externalvouchers.php?clid='.$clid.'&pid='.$pid.'"><span>' . $LANG['EXTVOUCH'] . '</span></a></li>';
 				if($clManager->hasVoucherProjects()) echo '<li><a href="imgvouchertab.php?clid='.$clid.'">'.(isset($LANG['ADDIMGV'])?$LANG['ADDIMGV']:'Add Image Voucher').'</a></li>';
 				?>
 				<li><a href="#reportDiv"><span><?php echo $LANG['REPORTS'];?></span></a></li>
