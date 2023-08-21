@@ -122,7 +122,7 @@ function retrieveVoucherInfo(taxonID) {
                     storeJsonStr += encodeURIComponent(',');
                 }
                 storeJsonStr += encodeURIComponent('{"id":"'+obs.id+'","taxon":"'+obs.taxon.name+'","user":"'+obs.user.login+'","date":"'+obs.observed_on_details.date+'","repository":"iNat"}');
-                retrievedVouch += obs.user.login + ' ' + obs.observed_on_details.date + ' [iNat]; ';
+                retrievedVouch += '<a href="https://www.inaturalist.org/observations/'+obs.id+'" target="_blank">' + obs.user.login + ' ' + obs.observed_on_details.date + ' [iNat]</a>; ';
             }
             storeJsonStr += encodeURIComponent(']');
             reportingSpan.innerHTML = retrievedVouch;
