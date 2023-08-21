@@ -8,7 +8,6 @@
 
 
 
-
 function extractiNatTaxaIdAndName(resultsjson) {
     let outputArr = Array();
     resultsjson.forEach(element => {
@@ -17,6 +16,8 @@ function extractiNatTaxaIdAndName(resultsjson) {
     return outputArr;
 }
 
+// Note: as of the time of coding, iNaturalist API v2 is in beta and this section may require some adjusting post-release.
+//       API v1 does not allow custom fields (i.e., taxa names) to be returned.
 async function fetchiNatPage1(projID, iconictaxon = '', qualitygrade = 'research') {
     let apiurl = '';
     if(iconictaxon == '') {
@@ -65,10 +66,8 @@ async function fetchiNatAdditionalPages(loopnum, projID, iconictaxon = '', quali
 
 async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade = 'research', rank = 'species') {
     let apiurl = '';
-
-
     if(iconictaxon == '') {
-        // add something here to switch to API v1 if v2 fails?
+        // add something here to switch to API v2 if v1 fails?
         apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
     } else {
         apiurl = `https://api.inaturalist.org/v1/points/${zoom}/${xtile}/${ytile}.grid.json?mappable=true&project_id=${projID}&rank=${rank}&iconic_taxa=${iconictaxon}&quality_grade=${qualitygrade}&order=asc&order_by=updated_at`;
@@ -82,4 +81,55 @@ async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade =
     } catch(err) {
         console.error(err);
     }
+
+}
+
+
+async function iNatGetVoucher(obsID) {
+    let apiurl = `https://api.inaturalist.org/v1/observations/`;
+    const resp = await fetch(apiurl+obsID);
+    try {
+        if(resp.ok) {
+            const obsjson = await resp.json();
+            return obsjson;
+        }
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+// VOUCHERS
+function parseVoucherIDs(textboxID) {
+    let txtbox = document.getElementById(textboxID);
+    const extIDUntrimmedArr = txtbox.value.split(",");
+    const extIDArr = extIDUntrimmedArr.map(element => {
+        return element.trim();
+    });
+    return extIDArr;
+}
+
+function retrieveVoucherInfo(taxonID) {
+    let idArr = parseVoucherIDs('i-'+taxonID).join('%2C');
+    iNatGetVoucher(idArr)
+        .then(resp => {
+            const reportingSpan = document.getElementById('r-'+taxonID);
+            const hiddenVoucherField = document.getElementById('v-'+taxonID);
+            let storeJsonStr = '';
+            let retrievedVouch = '';
+            for (const obs of resp.results) {
+                if(storeJsonStr == '') {
+                    storeJsonStr = encodeURIComponent('[');
+                } else {
+                    storeJsonStr += encodeURIComponent(',');
+                }
+                storeJsonStr += encodeURIComponent('{"id":"'+obs.id+'","taxon":"'+obs.taxon.name+'","user":"'+obs.user.login+'","date":"'+obs.observed_on_details.date+'","repository":"iNat"}');
+                retrievedVouch += '<a href="https://www.inaturalist.org/observations/'+obs.id+'" target="_blank">' + obs.user.login + ' ' + obs.observed_on_details.date + ' [iNat]</a>; ';
+            }
+            storeJsonStr += encodeURIComponent(']');
+            reportingSpan.innerHTML = retrievedVouch;
+            hiddenVoucherField.setAttribute("value", hiddenVoucherField.value + storeJsonStr);
+        })
+        .catch(error => {
+            error.message;
+        })
 }

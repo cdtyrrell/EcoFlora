@@ -652,7 +652,10 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							$dynamPropsArr = json_decode($clArray['dynamicProperties'], true);
 						}
 						$voucherArr = array();
-						if($showVouchers) $voucherArr = $clManager->getVoucherArr();
+						if($showVouchers) {
+							$voucherArr = $clManager->getVoucherArr();
+							$externalVoucherArr = $clManager->getExternalVoucherArr();
+						}
 						$prevGroup = '';
 						$arrforexternalserviceapi = '';
 						foreach($taxaArray as $tid => $sppArr){
@@ -742,6 +745,9 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 										$voucCnt++;
 									}
 									if($voucCnt > 4 && !$printMode) $voucStr .= '</span><a href="#" id="lessvouch-'.$tid.'" style="display:none;" onclick="return toggleVoucherDiv('.$tid.');">...' . htmlspecialchars($LANG['LESS'], HTML_SPECIAL_CHARS_FLAGS) . '</a>';
+								}
+								if(count($externalVoucherArr) > 0 && $clManager->getAssociatedExternalService()) {
+									$voucStr .= ' '.$externalVoucherArr[$tid];
 								}
 								$voucStr = trim($voucStr,' ;,');
 								if($voucStr) echo '<div class="note-div">'.$voucStr.'</div>';
