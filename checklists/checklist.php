@@ -744,7 +744,7 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 									}
 									if($voucCnt > 4 && !$printMode) $voucStr .= '</span><a href="#" id="lessvouch-'.$tid.'" style="display:none;" onclick="return toggleVoucherDiv('.$tid.');">...'.$LANG['LESS'].'</a>';
 								}
-								if(count($externalVoucherArr) > 0) {
+								if(count($externalVoucherArr) > 0 && $clManager->getAssociatedExternalService()) {
 									$voucStr .= ' '.$externalVoucherArr[$tid];
 								}
 								$voucStr = trim($voucStr,' ;,');

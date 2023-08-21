@@ -144,6 +144,17 @@ class ChecklistManager extends Manager{
 		return $this->clMetadata;
 	}
 
+	public function getAssociatedExternalService(){
+		$resp = 'FALSE';
+ 		if($this->clMetadata['dynamicProperties']){
+			$dynpropArr = json_decode($this->clMetadata['dynamicProperties'], TRUE);
+			if(array_key_exists('externalservice', $dynpropArr)) {
+				$resp = $dynpropArr['externalservice'];
+			}
+		} 
+		return $resp;
+	}
+
 	public function getParentChecklist(){
 		$parentArr = array();
 		if($this->clid){
