@@ -108,14 +108,25 @@ function parseVoucherIDs(textboxID) {
 }
 
 function retrieveVoucherInfo(taxonID) {
-    let idArr = parseVoucherIDs('i-'+taxonID).join(',');
-    //iNatGetVoucher(idArr);
-    //ADD NECESSARY CODE TO RETURN species, user, number, date: chris_earle 6 May 2023 [iNat]
+    let idArr = parseVoucherIDs('i-'+taxonID).join('%2C');
     iNatGetVoucher(idArr)
         .then(resp => {
-            const retrievedVouch = resp.results[0].taxon.name + ' ' + resp.results[0].user.login + ' ' + resp.results[0].observed_on_details.date + ' [iNat]';
-            let reportingSpan = document.getElementById('r-'+taxonID);
+            const reportingSpan = document.getElementById('r-'+taxonID);
+            const hiddenVoucherField = document.getElementById('v-'+taxonID);
+            let storeJsonStr = '';
+            let retrievedVouch = '';
+            for (const obs of resp.results) {
+                if(storeJsonStr == '') {
+                    storeJsonStr = encodeURIComponent('[');
+                } else {
+                    storeJsonStr += encodeURIComponent(',');
+                }
+                storeJsonStr += encodeURIComponent('{"id":"'+obs.id+'","taxon":"'+obs.taxon.name+'","user":"'+obs.user.login+'","date":"'+obs.observed_on_details.date+'","repository":"iNat"}');
+                retrievedVouch += obs.user.login + ' ' + obs.observed_on_details.date + ' [iNat]; ';
+            }
+            storeJsonStr += encodeURIComponent(']');
             reportingSpan.innerHTML = retrievedVouch;
+            hiddenVoucherField.setAttribute("data-json", hiddenVoucherField.data-json + storeJsonStr);
         })
         .catch(error => {
             error.message;

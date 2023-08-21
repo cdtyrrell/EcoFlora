@@ -83,6 +83,7 @@ if($isEditor){
 				echo '<label>'.$sppArr['sciname'].' '.$sppArr["author"].'</label></a>&nbsp;';
 				?>
 				<input type="text" name="<?php echo $tid; ?>" id="i-<?php echo $taxonWithDashes; ?>" style="background-color:#E3E7EB">
+				<input type="hidden" name="v-<?php echo $tid; ?>" id="v-<?php echo $taxonWithDashes; ?>">
 				<span class="view-specimen-span printoff">
 					<a style="text-decoration: none;" onclick="retrieveVoucherInfo('<?php echo $taxonWithDashes; ?>')">
 						<?php echo (isset($LANG['LOOKUPEXT'])?$LANG['LOOKUPEXT']:'Lookup external vouchers'); ?>
