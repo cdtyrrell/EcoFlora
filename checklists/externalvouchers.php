@@ -1,4 +1,14 @@
 <?php
+
+//--------------------------------------------------------------------
+//  This Symbiota enhancement was made possible with support from
+//  the United States Institute of Museum and Library Services grant
+//  MG-70-19-0057-19, to the New York Botanical Garden (NYBG).
+// Programming performed by Christopher D. Tyrrell, all errors and
+//  omissions are his.
+//--------------------------------------------------------------------
+
+
 include_once('../config/symbini.php');
 include_once($SERVER_ROOT.'/classes/ChecklistVoucherReport.php');
 include_once($SERVER_ROOT.'/classes/ChecklistManager.php');
@@ -50,6 +60,7 @@ if($isEditor){
 				text-align: right;
 			}
 		</style>
+		<script src="../js/symb/checklists.externalserviceapi.js"></script></script>
 			<?php
 			echo '<div id="taxalist-div">';
 			echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
@@ -73,10 +84,11 @@ if($isEditor){
 				?>
 				<input type="text" name="<?php echo $tid; ?>" id="i-<?php echo $taxonWithDashes; ?>" style="background-color:#E3E7EB">
 				<span class="view-specimen-span printoff">
-					<a href="#" target="_blank" style="text-decoration: none;">
+					<a style="text-decoration: none;" onclick="retrieveVoucherInfo('<?php echo $taxonWithDashes; ?>')">
 						<?php echo (isset($LANG['LOOKUPEXT'])?$LANG['LOOKUPEXT']:'Lookup external vouchers'); ?>
 					</a>
 				</span>
+				<span id="r-<?php echo $taxonWithDashes; ?>"></span>
 				<?php
 				echo "</div>\n";
 				$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
@@ -89,7 +101,6 @@ if($isEditor){
 			echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
 			echo '</div>';
 			if(isset($dynamPropsArr) && $dynamPropsArr['externalservice'] == 'inaturalist') {
-				echo '<script src="../js/symb/checklists.externalserviceapi.js"></script>';
 				?>
 				<script>
 					<?php 

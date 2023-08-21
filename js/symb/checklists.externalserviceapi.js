@@ -8,7 +8,6 @@
 
 
 
-
 function extractiNatTaxaIdAndName(resultsjson) {
     let outputArr = Array();
     resultsjson.forEach(element => {
@@ -86,7 +85,7 @@ async function iNatPlotPoints(llbounds, projID, iconictaxon = '', qualitygrade =
 
 
 async function iNatGetVoucher(obsID) {
-    let apiurl = `https://api.inaturalist.org/v1/observation`; //ADD NECESSARY CODE TO RETURN species, user, number, date
+    let apiurl = `https://api.inaturalist.org/v1/observation/`+obsID;
     const resp = await fetch(apiurl);
     try {
         if(resp.ok) {
@@ -98,43 +97,20 @@ async function iNatGetVoucher(obsID) {
     }
 }
 
-// LINK VOUCHER
-// split on comma
+// VOUCHERS
+function parseVoucherIDs(textboxID) {
+    let txtbox = document.getElementById(textboxID);
+    const extIDUntrimmedArr = txtbox.value.split(",");
+    const extIDArr = extIDUntrimmedArr.map(element => {
+        return element.trim();
+    });
+    return extIDArr;
+}
 
-
-// check for an iNaturalist project id
-
-// x1. on create or update: Pull place_id from project json, then pull lat/long from place json (two calls).
-// "bounding_box_geojson": {"coordinates":...}
-// x2a. Calculate tiles for extent. Use some formula to dynamically gauge zoom level... i.e., limit the number of api calls to X.
-// zoom = round(log_2( 180/maxbboxdiff ))
-// 2b. Dynamically ping api for tile points based geo info; Can only call one tile per second.
-// "id","latitude","longitude"
-
-/*
-array[0]['ll']=>$r1->decimallatitude.','.$r1->decimallongitude
-						var pt = new google.maps.LatLng(<?php echo $pArr['ll']; ?>);
-						llBounds.extend(pt);
-
-                        							var m<?php echo $mCnt; ?> = new google.maps.Marker({position: pt, map:map, title:"<?php echo $pArr['sciname']; ?>", icon:pIcon});
-
-*/
-
-// 20221125: new plan, "dynamic" plotting: get current extent, then ping appropriate zoom level (one tile? four tiles?) for inat.
-// google.maps.getNorthEast()
-// google.maps.getSouthWest()
-
-
-
-			// Calculate tiles by taking the 25% and 75% positions in x and y to get the centers of nw, ne, sw, se tiles
-			// Start a promise 
-			//   ping the api for nw tile.
-			//   Must wait at least 0.7 seconds as per iNaturalist documentation
-			//   ping the api for se tile.
-			//   if ne tile != nw && ne != se,
-			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
-			// 	ping the api for ne tile
-			//   if sw tile != se && sw != nw
-			// 	Must wait at least 0.7 seconds as per iNaturalist documentation
-			// 	ping the api for sw tile
-			// fulfil promise by sending points from all tiles
+function retrieveVoucherInfo(taxonID) {
+    let idArr = parseVoucherIDs('i-'+taxonID).join(',');
+    //iNatGetVoucher(idArr);
+    //ADD NECESSARY CODE TO RETURN species, user, number, date
+    let reportingSpan = document.getElementById('r-'+taxonID);
+    reportingSpan.innerHTML = iNatGetVoucher(idArr);    //idArr;
+}
