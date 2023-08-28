@@ -63,11 +63,11 @@ if($isEditor){
 				<?php echo $LANG['LISTEDBELOWEXTERNAL'];?>
 			</div>
 			<div style="margin:20px;">
-			<style>
-				#taxalist-div {
+			<style type="text/css">
+				#extvoucher-taxalist-div {
 					margin-bottom: 10px;
 				}
-				label {
+				.extvoucher-label {
 					display: inline-block;
 					width: 150px;
 					text-align: right;
@@ -75,7 +75,7 @@ if($isEditor){
 			</style>
 			<script src="../js/symb/checklists.externalserviceapi.js"></script></script>
 				<?php
-				echo '<div id="taxalist-div">';
+				echo '<div id="extvoucher-taxalist-div">';
 				echo '<form action="externalvouchers.php?clid='.$clid.'&pid='.$pid.'" method="post">';
 				echo '<button type="submit">'.$LANG['SAVEEXTVOUCH'].'</button>';
 				$prevGroup = '';
@@ -94,7 +94,7 @@ if($isEditor){
 					$taxonWithDashes = str_replace(' ', '-', $sppArr['sciname']);
 					echo '<div class="taxon-container">';
 					echo '<a href="#" target="_blank" id="a-' . $taxonWithDashes . '" style="pointer-events:none;">'; 
-					echo '<label id="l-' . $taxonWithDashes . '">'.$sppArr['sciname'].' '.$sppArr["author"].'</label></a>&nbsp;';
+					echo '<label class="extvoucher-label" id="l-' . $taxonWithDashes . '">'.$sppArr['sciname'].' '.$sppArr["author"].'</label></a>&nbsp;';
 					?>
 					<input type="text" name="i-<?php echo $tid; ?>" id="i-<?php echo $taxonWithDashes; ?>" style="background-color:#E3E7EB">
 					<input type="hidden" name="<?php echo $tid; ?>" id="v-<?php echo $taxonWithDashes; ?>">

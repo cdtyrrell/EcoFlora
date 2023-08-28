@@ -813,9 +813,9 @@ class ChecklistManager extends Manager{
 		if($this->childClidArr){
 			$clidStr .= ','.implode(',',array_keys($this->childClidArr));
 		}
-		$vSql = 'SELECT clid, tid, notes, dynamicProperties 
+		$vSql = 'SELECT clid, tid, name, dynamicProperties 
 			FROM fmchklstcoordinates 
-			WHERE (clid IN ('.$clidStr.')) AND (tid IN('.implode(',',array_keys($this->taxaList)).')) AND notes = "EXTERNAL_VOUCHER"';
+			WHERE (clid IN ('.$clidStr.')) AND (tid IN('.implode(',',array_keys($this->taxaList)).')) AND name = "EXTERNAL_VOUCHER"';
 		$vResult = $this->conn->query($vSql);
 		while ($row = $vResult->fetch_object()){
 			$dynPropArr = json_decode($row->dynamicProperties);
