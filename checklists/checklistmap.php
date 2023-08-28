@@ -25,7 +25,7 @@ $clMeta = $clManager->getClMetaData();
 	//include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 
-	// If checklist is associated with an external service (i.e., iNaturalist), deploy client-side javascript
+	// If checklist is associated with an external service (i.e., iNaturalist), transfer some server-side data to client-side
 	if($clMeta['dynamicProperties']){
 		$dynamPropsArr = json_decode($clMeta['dynamicProperties'], true);
 		if(isset($dynamPropsArr['externalservice']) && $dynamPropsArr['externalservice'] == 'inaturalist') {
@@ -34,6 +34,11 @@ $clMeta = $clManager->getClMetaData();
 			echo 'const urltail = ".grid.json?mappable=true&project_id='. ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'').'&rank='. ($dynamPropsArr['externalservicerank']?$dynamPropsArr['externalservicerank']:'species').'&iconic_taxa='. ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'').'&quality_grade='. ($dynamPropsArr['externalservicegrade']?$dynamPropsArr['externalservicegrade']:'research').'&order=asc&order_by=updated_at";';
 			echo 'const inatprojid = "'. ($dynamPropsArr['externalserviceid']?$dynamPropsArr['externalserviceid']:'') .'";';
 			echo 'const inaticonic = "'. ($dynamPropsArr['externalserviceiconictaxon']?$dynamPropsArr['externalserviceiconictaxon']:'') .'";';
+			echo 'const inatNE = "'.($dynamPropsArr['externalservicene']?$dynamPropsArr['externalservicene']:'') .'";';
+			echo 'const inatSW = "'.($dynamPropsArr['externalservicesw']?$dynamPropsArr['externalservicesw']:'') .'";';
+			echo 'const latcentroid = '.($clMeta['latcentroid']?$clMeta['latcentroid']:0) .';';
+			echo 'const longcentroid = '.($clMeta['longcentroid']?$clMeta['longcentroid']:0) .';';
+			echo 'const pointradiusmeters = '.($clMeta['pointradiusmeters']?$clMeta['pointradiusmeters']:0) .';';
 			echo '</script>';
 		}
 
@@ -64,33 +69,29 @@ $clMeta = $clManager->getClMetaData();
 				$mCnt = 0;
 				foreach($coordArr as $tid => $cArr){
 					foreach($cArr as $pArr){
-						?>
-						var pt = new google.maps.LatLng(<?php echo $pArr['ll']; ?>);
-						llBounds.extend(pt);
-						<?php
-						if(array_key_exists('occid',$pArr)){
-							?>
-							var m<?php echo $mCnt; ?> = new google.maps.Marker({position: pt, map:map, title:"<?php echo $pArr['notes']; ?>", icon:vIcon});
-							google.maps.event.addListener(m<?php echo $mCnt; ?>, "click", function(){ openIndPU(<?php echo $pArr['occid']; ?>); });
-							<?php
+						$llArr = explode(',', $pArr['ll']);
+						if(trim($llArr[0]) != 0 && trim($llArr[1]) != 0) {
+							// This is a preventative measure to reduce the chance of points in table fmchklstcoordinates 
+							// without legitimate coordinates (i.e., 0, 0) from adversely affecting map center and extent.
+							echo "var pt = new google.maps.LatLng(".$pArr['ll'].");";
+							echo "llBounds.extend(pt);";
+							if(array_key_exists('occid',$pArr)){
+								echo 'var m'.$mCnt.' = new google.maps.Marker({position: pt, map:map, title:"'. $pArr['notes'].'", icon:vIcon});';
+								echo 'google.maps.event.addListener(m'.$mCnt.', "click", function(){ openIndPU('.$pArr['occid'].'); });';
+							}
+							else{
+								echo 'var m'.$mCnt.' = new google.maps.Marker({position: pt, map:map, title:"'.$pArr['sciname'].'", icon:pIcon});';
+							}
+							$mCnt++;
 						}
-						else{
-							?>
-							var m<?php echo $mCnt; ?> = new google.maps.Marker({position: pt, map:map, title:"<?php echo $pArr['sciname']; ?>", icon:pIcon});
-							<?php
-						}
-						$mCnt++;
 					}
 				}
 			
 				$clMeta = $clManager->getClMetaData();
-				?> 
+				?>
 				map.fitBounds(llBounds);
 				map.panToBounds(llBounds);
 
-				// Optimize request based on a zoom level that will return 4 tiles within current bounds
-				//     Alternative: get project bounding box by: pulling place_id from project json, then pull lat/long from place json (two iNat calls). "bounding_box_geojson": {"coordinates":...}
-				// Determine x difference and y difference and get the max
 
 				function ll2slippytile(lon, lat, zoom) {
 					// https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers_2
@@ -101,7 +102,6 @@ $clMeta = $clManager->getClMetaData();
 				}
 
 				async function requestTileCoords(tileurls) {
-
 					const resps = await Promise.all(tileurls.map(async (url) => {
 						const resp = await fetch(url);
 						// Throttle to < 100 requests per minute as per iNaturalist API guidelines 
@@ -115,30 +115,60 @@ $clMeta = $clManager->getClMetaData();
 					return returnarr;
 				}
 
-				let ne = llBounds.getNorthEast();
-				let sw = llBounds.getSouthWest();
-				let xdiff = Math.abs( ne.lng() - sw.lng() ); 
-				let ydiff = Math.abs( ne.lat() - sw.lat() );
-				let diff = Math.max(xdiff, ydiff);
-				// Calculate zoom factor
-				let zoom = Math.round(Math.log2( 180/diff ));
 
-				// Determine approximate tile centers by taking the 25% and 75% positions in x and y
-				let x25 = (0.25 * xdiff) + sw.lng();
-				let x75 = (0.75 * xdiff) + ne.lng();
-				let y25 = (0.25 * ydiff) + sw.lat();
-				let y75 = (0.75 * ydiff) + ne.lat();
-				const nwtile = ll2slippytile(x25,y25,zoom);
-				const setile = ll2slippytile(x75,y75,zoom);
-				const netile = ll2slippytile(x75,y25,zoom);
-				const swtile = ll2slippytile(x25,y75,zoom);
+				let north = 90;
+				let south = -90;
+				let east = 180;
+				let west = -180;
+				if(pointradiusmeters != 0) {  // Try Symbiota bounds
+					console.log("Using Symbiota bounds");
+					const coordoffset = pointradiusmeters/111319.9;  // based on approximate length of a decimal degree at the equator, if change in distance with latitude is really critical, someone can get fancy with the math in the future
+					north = latcentroid + coordoffset;
+					south = latcentroid - coordoffset;
+					east = longcentroid + coordoffset;
+					west = longcentroid - coordoffset;
+				} else if( (inatNE != '' || inatSW != '') && (inatNE != 0 && inatSW != 0) ) {  // Try iNat bounds
+					console.log("Using iNaturalist bounds");
+					let neArr = inatNE.split('|');
+					let swArr = inatSW.split('|');
+					north = parseFloat(neArr[0]);
+					south = parseFloat(swArr[0]);
+					east = parseFloat(neArr[1]);
+					west = parseFloat(swArr[1]);
+			
+				} else {  // Use map extent
+					console.log("Using current map bounds");
+					const ne = llBounds.getNorthEast();
+					const sw = llBounds.getSouthWest();
+					north = ne.lat();
+					south = sw.lat();
+					east = ne.lng();
+					west = sw.lng();
+				}
+				
+				// Guesstimate approximate tile centers by taking the 25% and 75% positions in x and y
+				const xdiff = Math.abs(east - west); 
+				const ydiff = Math.abs(north - south);
+				const diff = (xdiff + ydiff) / 2;
+				let zoom = Math.round(Math.log2( 180/diff ));
+				const x25 = west + (0.25 * xdiff);
+				const x75 = east - (0.25 * xdiff);
+				const y25 = south + (0.25 * ydiff);
+				const y75 = north - (0.25 * ydiff);
+				let nwtile = ll2slippytile(x25,y25,zoom);
+				let setile = ll2slippytile(x75,y75,zoom);
+				let netile = ll2slippytile(x75,y25,zoom);
+				let swtile = ll2slippytile(x25,y75,zoom);
+
+
+				// Optimize request based on a zoom level that will return 4 tiles within current bounds
 
 				// Start with NW tile
 				let alltileurls = [`https://api.inaturalist.org/v1/points/${zoom}/${nwtile['x']}/${nwtile['y']}${urltail}`];
 
-				// Check rectangularity condition of llbounds converted to tiles (2x2, 2x1, 1x2, 1x1)
+				// Check rectangularity condition of llbounds converted to tiles (2x2, 2x1, 1x2)
 				if(setile != nwtile) {
-					// 1x1 check
+					// 1x1 check; theoretically, a 1x1 should just be a 2x2 at a lower zoom level
 					alltileurls.push(`https://api.inaturalist.org/v1/points/${zoom}/${setile['x']}/${setile['y']}${urltail}`);
 					if(netile != setile || nwtile != swtile) {
 						// 1x2 check, if succeeds, then 2x2

@@ -101,7 +101,24 @@ class ChecklistAdmin extends Manager{
 			$requestStr = 'https://api.inaturalist.org/v1/places/' . $inatProjectJson->place_id;
 			$inatPlaceJson = json_decode(file_get_contents($requestStr));
 			$inatPlaceCoords = $inatPlaceJson->results[0]->bounding_box_geojson->coordinates[0];
-			$maxlondiff = $maxlatdiff = 0;
+			$minlon = $maxlon = $prevminlon = $prevmaxlon = $inatPlaceCoords[0][0];
+			$minlat = $maxlat = $prevminlat = $prevmaxlat = $inatPlaceCoords[0][1];
+			for ($k = 1 ; $k < 4; $k++) {
+				if ($inatPlaceCoords[$k][0] < $prevminlon) {
+					$minlon = $prevminlon = $inatPlaceCoords[$k][0];
+				}
+				if ($inatPlaceCoords[$k][1] < $prevminlat) {
+					$minlat = $prevminlat = $inatPlaceCoords[$k][1];
+				}
+				if ($inatPlaceCoords[$k][0] > $prevmaxlon) {
+					$maxlon = $prevmaxlon = $inatPlaceCoords[$k][0];
+				}
+				if ($inatPlaceCoords[$k][1] > $prevmaxlat) {
+					$maxlat = $prevmaxlat = $inatPlaceCoords[$k][1];
+				}
+			}
+
+/* 			$maxlondiff = $maxlatdiff = 0;
 			$bboxloncoords = $bboxlatcoords = array();
 			for ($k = 0 ; $k < 4; $k++) {
 				if(isset($prevzero)) {
@@ -117,9 +134,9 @@ class ChecklistAdmin extends Manager{
 			$xtilemax = floor(((max($bboxloncoords) + 180) / 360) * pow(2, $zoom));
 			$xtilemin = floor(((min($bboxloncoords) + 180) / 360) * pow(2, $zoom));
 			$ytilemax = floor((1 - log(tan(deg2rad(max($bboxlatcoords))) + 1 / cos(deg2rad(max($bboxlatcoords)))) / pi()) /2 * pow(2, $zoom));
-			$ytilemin = floor((1 - log(tan(deg2rad(min($bboxlatcoords))) + 1 / cos(deg2rad(min($bboxlatcoords)))) / pi()) /2 * pow(2, $zoom));
-			$dynpropArr['externalservicexyzmax'] = $zoom.'|'.$xtilemax.'|'.$ytilemax;
-			$dynpropArr['externalservicexyzmin'] = $zoom.'|'.$xtilemin.'|'.$ytilemin;
+			$ytilemin = floor((1 - log(tan(deg2rad(min($bboxlatcoords))) + 1 / cos(deg2rad(min($bboxlatcoords)))) / pi()) /2 * pow(2, $zoom)); */
+			$dynpropArr['externalservicene'] = $maxlat.'|'.$maxlon;
+			$dynpropArr['externalservicesw'] = $minlat.'|'.$minlon;
 		}
 		return json_encode($dynpropArr);
 	}
@@ -246,8 +263,14 @@ class ChecklistAdmin extends Manager{
 		// EG suggested storing external (e.g., iNaturalist) voucher records in the `fmchklstcoordinates` table as this table
 		//   was un- or under-used as of schema 3.0. The `notes` column serves as a flag for these vouchers. --CDT 2023-08-21
 		$status = 'Success';
+		$indat = json_decode($dataAsJson);
+		// for single vouchers, add ll, for multiple use zero :(.
+		// we could try averaging ll for multiples, but then the software would be introducing non-real data, which is bad.
+		// not that zero/zero is real data either... CDT 8/2023
+		$lat = (count($indat) == 1?$indat[0]['lat']:0); 
+		$lng = (count($indat) == 1?$indat[0]['lng']:0); 
 		if(is_numeric($tid)){ 
-			$sql = "INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,notes,dynamicProperties) VALUES(".$this->clid.",".$tid.",-1,-1,'EXTERNAL_VOUCHER','".$dataAsJson."')";
+			$sql = "INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,`name`,dynamicProperties) VALUES(".$this->clid.",".$tid.",".$lat.",".$lng.",'EXTERNAL_VOUCHER','".$dataAsJson."')";
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR: unable to store vouchers!. '.$this->conn->error;
 			}

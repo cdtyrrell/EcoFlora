@@ -94,12 +94,12 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 <head>
 	<meta charset="<?php echo $CHARSET; ?>">
 	<title><?php echo $DEFAULT_TITLE.' '.(isset($LANG['CHECKLIST'])?$LANG['CHECKLIST']:'Checklist').': '.$clManager->getClName(); ?></title>
-	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/jquery-ui.css" type="text/css" rel="stylesheet">
+	<link href="<?php echo $CLIENT_ROOT . '/css/' . ($CSS_VERSION_RELEASE ? 'v' . $CSS_VERSION_RELEASE . '/' : 'legacy/symb/'); ?>jquery-ui.css" type="text/css" rel="stylesheet">
 	<?php
 	include_once($SERVER_ROOT.'/includes/head.php');
 	include_once($SERVER_ROOT.'/includes/googleanalytics.php');
 	?>
-	<link href="<?php echo htmlspecialchars($CSS_BASE_PATH, HTML_SPECIAL_CHARS_FLAGS); ?>/symbiota/checklists/checklist.css" type="text/css" rel="stylesheet" />
+	<link href="<?php echo $CLIENT_ROOT . '/css/' . ($CSS_VERSION_RELEASE ? 'v' . $CSS_VERSION_RELEASE . '/symbiota/checklists/' : 'legacy/symb/'); ?>checklist.css" type="text/css" rel="stylesheet" />
 	<script src="../js/jquery.js" type="text/javascript"></script>
 	<script src="../js/jquery-ui.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -683,27 +683,26 @@ $taxaArray = $clManager->getTaxaList($pageNumber,($printMode?0:500));
 							if($clid && $clArray['dynamicsql']){
 								?>
 								<span class="view-specimen-span printoff">
-									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo htmlspecialchars($tid, HTML_SPECIAL_CHARS_FLAGS) . "&targetclid=" . htmlspecialchars($clid, HTML_SPECIAL_CHARS_FLAGS) . "&targettid=" . htmlspecialchars($tid, HTML_SPECIAL_CHARS_FLAGS);?>" target="_blank">
+									<a href="../collections/list.php?usethes=1&taxontype=2&taxa=<?php echo htmlspecialchars($tid, HTML_SPECIAL_CHARS_FLAGS) . "&targetclid=" . htmlspecialchars($clid, HTML_SPECIAL_CHARS_FLAGS) . "&targettid=" . htmlspecialchars($tid, HTML_SPECIAL_CHARS_FLAGS);?>" target="_blank" style="text-decoration:none;">
 										<img src="../images/list.png" style="width:12px;" title="<?php echo (isset($LANG['VIEW_RELATED'])?$LANG['VIEW_RELATED']:'View Related Specimens'); ?>" />
 									</a>
+									<?php
+									if(isset($dynamPropsArr)){ 
+										$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
+										if($arrforexternalserviceapi == '') {
+											$arrforexternalserviceapi .= "'" . $scinameasid . "'";
+										} else {
+											$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
+										}
+										echo '<a href="#" target="_blank" id="a-'.$scinameasid.'">';
+										echo '<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="'. (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist').'" id="i-'.$scinameasid.'" />';
+										echo '</a>';
+									}
+									?>
 								</span>
 								<?php
 							}
-							if(isset($dynamPropsArr)){ 
-								$scinameasid = str_replace(" ", "-", $sppArr['sciname']);
-								if($arrforexternalserviceapi == '') {
-									$arrforexternalserviceapi .= "'" . $scinameasid . "'";
-								} else {
-									$arrforexternalserviceapi .= ",'" . $scinameasid . "'";
-								}
-								?>
-								<span class="printoff">
-									<a href="#" target="_blank" id=<?php echo 'a-'.$scinameasid; ?> >
-										<img src="../images/icons/inaturalist.png" style="width:12px;display:none;" title="<?php echo (isset($LANG['LINKTOINAT'])?$LANG['LINKTOINAT']:'See records in iNaturalist'); ?>" id=<?php echo 'i-'.$scinameasid; ?> />
-									</a>
-								</span>
-								<?php
-							}
+
 							if($isEditor){
 								if(isset($sppArr['clid'])){
 									$clidArr = explode(',',$sppArr['clid']);
