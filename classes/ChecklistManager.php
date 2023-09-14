@@ -817,27 +817,29 @@ class ChecklistManager extends Manager{
 			FROM fmchklstcoordinates 
 			WHERE (clid IN ('.$clidStr.')) AND (tid IN('.implode(',',array_keys($this->taxaList)).')) AND name = "EXTERNAL_VOUCHER"';
 		$vResult = $this->conn->query($vSql);
-		while ($row = $vResult->fetch_object()){
-			$dynPropArr = json_decode($row->dynamicProperties);
-			$displayStr = '';
-			foreach($dynPropArr as $vouch) {
-				$accumulateStr = ($vouch->user?$vouch->user:'');
-				if(strlen($accumulateStr) > 25){
-					//Collector string is too big, thus reduce
-					$strPos = strpos($accumulateStr,';');
-					if(!$strPos) $strPos = strpos($accumulateStr,',');
-					if(!$strPos) $strPos = strpos($accumulateStr,' ',10);
-					if($strPos) $accumulateStr = substr($accumulateStr,0,$strPos).'...';
+		if($vResult) {
+			while ($row = $vResult->fetch_object()){
+				$dynPropArr = json_decode($row->dynamicProperties);
+				$displayStr = '';
+				foreach($dynPropArr as $vouch) {
+					$accumulateStr = ($vouch->user?$vouch->user:'');
+					if(strlen($accumulateStr) > 25){
+						//Collector string is too big, thus reduce
+						$strPos = strpos($accumulateStr,';');
+						if(!$strPos) $strPos = strpos($accumulateStr,',');
+						if(!$strPos) $strPos = strpos($accumulateStr,' ',10);
+						if($strPos) $accumulateStr = substr($accumulateStr,0,$strPos).'...';
+					}
+					if($vouch->date) $accumulateStr .= ' '.$vouch->date;
+					if(!trim($accumulateStr)) $accumulateStr = 'undefined voucher';
+					$accumulateStr .= ' ['.$vouch->repository.($vouch->id?'-'.$vouch->id:'').']';
+					$accumulateStr = '<a href="https://www.inaturalist.org/observations/'.$vouch->id.'" target="_blank">' . $accumulateStr . '</a>, ';
+					$displayStr .= $accumulateStr;
 				}
-				if($vouch->date) $accumulateStr .= ' '.$vouch->date;
-				if(!trim($accumulateStr)) $accumulateStr = 'undefined voucher';
-				$accumulateStr .= ' ['.$vouch->repository.($vouch->id?'-'.$vouch->id:'').']';
-				$accumulateStr = '<a href="https://www.inaturalist.org/observations/'.$vouch->id.'" target="_blank">' . $accumulateStr . '</a>, ';
-				$displayStr .= $accumulateStr;
+				$this->externalVoucherArr[$row->tid] = trim($displayStr);
 			}
-			$this->externalVoucherArr[$row->tid] = trim($displayStr);
+			$vResult->free();
 		}
-		$vResult->free();
 	}
 
 	public function getExternalVoucherArr(){
