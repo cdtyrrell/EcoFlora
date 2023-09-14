@@ -270,7 +270,7 @@ class ChecklistAdmin extends Manager{
 		$lat = (count($indat) == 1?$indat[0]['lat']:0); 
 		$lng = (count($indat) == 1?$indat[0]['lng']:0); 
 		if(is_numeric($tid)){ 
-			$sql = "INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,`name`,dynamicProperties) VALUES(".$this->clid.",".$tid.",".$lat.",".$lng.",'EXTERNAL_VOUCHER','".$dataAsJson."')";
+			$sql = "INSERT INTO fmchklstcoordinates(clid,tid,decimallatitude,decimallongitude,sourceName,dynamicProperties) VALUES(".$this->clid.",".$tid.",".$lat.",".$lng.",'EXTERNAL_VOUCHER','".$dataAsJson."')";
 			if(!$this->conn->query($sql)){
 				$status = 'ERROR: unable to store vouchers!. '.$this->conn->error;
 			}
